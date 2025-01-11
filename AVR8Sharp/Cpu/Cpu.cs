@@ -1,5 +1,6 @@
 #nullable enable
 
+using AVR8Sharp.Peripherals;
 namespace AVR8Sharp.Cpu;
 
 public class Cpu
@@ -47,6 +48,9 @@ public class Cpu
 			return (SREG & 0x80) != 0;
 		}
 	}
+	
+	public List<AvrIoPort> GpioPorts { get; } = [];
+	public Dictionary<uint, AvrIoPort> GpioByPort { get; } = [];
 	#endregion
 
 	public Cpu (ushort[] program, int sramBytes = 8192)
@@ -112,7 +116,7 @@ public class Cpu
 			_data[interrupt.FlagRegister] &= (byte)~interrupt.FlagMask;
 		}
 		else {
-			_data[interrupt.FlagRegister] |= interrupt.FlagMask;
+			_data[interrupt.FlagRegister] |= (byte)interrupt.FlagMask;
 		}
 		if ((_data[interrupt.EnableRegister] & interrupt.EnableMask) != 0) {
 			QueueInterrupt (interrupt);
@@ -349,10 +353,9 @@ public class Cpu
 		if (!InterruptsEnabled || _nextInterrupt < 0) return;
 		var interrupt = _pendingInterrupts[_nextInterrupt];
 		if (interrupt == null) return;
-		var value = interrupt.Value;
-		Interrupt.AvrInterrupt (this, value.Address);
-		if (!value.Constant) {
-			ClearInterrupt (value);
+		Interrupt.AvrInterrupt (this, interrupt.Address);
+		if (!interrupt.Constant) {
+			ClearInterrupt (interrupt);
 		}
 	}
 }
@@ -391,13 +394,13 @@ public class CpuMemoryWriteHooks
 	}
 }
 
-public struct AvrInterruptConfig
+public class AvrInterruptConfig
 {
 	public byte Address;
 	public ushort EnableRegister;
-	public byte EnableMask;
+	public int EnableMask;
 	public ushort FlagRegister;
-	public byte FlagMask;
+	public int FlagMask;
 	public bool Constant;
 	public bool InverseFlag;
 }

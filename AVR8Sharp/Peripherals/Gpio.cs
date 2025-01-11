@@ -188,26 +188,6 @@ public class AvrIoPort
 		};
 		
 		// External interrupts
-		// const { externalInterrupts } = portConfig;
-		// this.externalInts = externalInterrupts.map((externalConfig) =>
-		//   externalConfig
-		//     ? {
-		//         address: externalConfig.interrupt,
-		//         flagRegister: externalConfig.EIFR,
-		//         flagMask: 1 << externalConfig.index,
-		//         enableRegister: externalConfig.EIMSK,
-		//         enableMask: 1 << externalConfig.index,
-		//       }
-		//     : null
-		// );
-		// const EICR = new Set(externalInterrupts.map((item) => item?.EICR));
-		// for (const EICRx of EICR) {
-		//   this.attachInterruptHook(EICRx || 0);
-		// }
-		// const EIMSK = externalInterrupts.find((item) => item && item.EIMSK)?.EIMSK ?? 0;
-		// this.attachInterruptHook(EIMSK, 'mask');
-		// const EIFR = externalInterrupts.find((item) => item && item.EIFR)?.EIFR ?? 0;
-		// this.attachInterruptHook(EIFR, 'flag');
 		
 		_externalInts = portConfig.ExternalInterrupts.Select (externalConfig => {
 			if (externalConfig != null) {

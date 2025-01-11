@@ -102,16 +102,6 @@ public class Cpu
 
 	public void SetInterruptFlag (AvrInterruptConfig interrupt)
 	{
-		// Original Javascript code
-		// const { flagRegister, flagMask, enableRegister, enableMask } = interrupt;
-		// if (interrupt.inverseFlag) {
-		//   this.data[flagRegister] &= ~flagMask;
-		// } else {
-		//   this.data[flagRegister] |= flagMask;
-		// }
-		// if (this.data[enableRegister] & enableMask) {
-		//   this.queueInterrupt(interrupt);
-		// }
 		if (interrupt.InverseFlag) {
 			_data[interrupt.FlagRegister] &= (byte)~interrupt.FlagMask;
 		}
@@ -125,16 +115,6 @@ public class Cpu
 
 	public void UpdateInterruptEnable (AvrInterruptConfig interrupt, byte registerValue)
 	{
-		// Original Javascript code
-		// const { enableMask, flagRegister, flagMask, inverseFlag } = interrupt;
-		// if (registerValue & enableMask) {
-		//   const bitSet = this.data[flagRegister] & flagMask;
-		//   if (inverseFlag ? !bitSet : bitSet) {
-		//     this.queueInterrupt(interrupt);
-		//   }
-		// } else {
-		//   this.clearInterrupt(interrupt, false);
-		// }
 		if ((registerValue & interrupt.EnableMask) != 0) {
 			var bitSet = (_data[interrupt.FlagRegister] & interrupt.FlagMask) != 0;
 			if (interrupt.InverseFlag ? !bitSet : bitSet) {
@@ -147,15 +127,6 @@ public class Cpu
 	
 	public void QueueInterrupt (AvrInterruptConfig interrupt)
 	{
-		// Original Javascript code
-		// const { address } = interrupt;
-		// this.pendingInterrupts[address] = interrupt;
-		// if (this.nextInterrupt === -1 || this.nextInterrupt > address) {
-		//   this.nextInterrupt = address;
-		// }
-		// if (address > this.maxInterrupt) {
-		//   this.maxInterrupt = address;
-		// }
 		_pendingInterrupts[interrupt.Address] = interrupt;
 		if (_nextInterrupt == -1 || _nextInterrupt > interrupt.Address) {
 			_nextInterrupt = interrupt.Address;
@@ -167,24 +138,6 @@ public class Cpu
 	
 	public void ClearInterrupt (AvrInterruptConfig interrupt, bool clearFlag = true)
 	{
-		// Original Javascript code
-		// if (clearFlag) {
-		//   this.data[flagRegister] &= ~flagMask;
-		// }
-		// const { pendingInterrupts, maxInterrupt } = this;
-		// if (!pendingInterrupts[address]) {
-		//   return;
-		// }
-		// pendingInterrupts[address] = null;
-		// if (this.nextInterrupt === address) {
-		//   this.nextInterrupt = -1;
-		//   for (let i = address + 1; i <= maxInterrupt; i++) {
-		//     if (pendingInterrupts[i]) {
-		//       this.nextInterrupt = i;
-		//       break;
-		//     }
-		//   }
-		// }
 		if (clearFlag) {
 			_data[interrupt.FlagRegister] &= (byte)~interrupt.FlagMask;
 		}
@@ -203,12 +156,6 @@ public class Cpu
 	
 	public void ClearInterruptByFlag (AvrInterruptConfig interrupt, byte registerValue)
 	{
-		// Original Javascript code
-		// const { flagRegister, flagMask } = interrupt;
-		// if (registerValue & flagMask) {
-		//   this.data[flagRegister] &= ~flagMask;
-		//   this.clearInterrupt(interrupt);
-		// }
 		if ((registerValue & interrupt.FlagMask) == 0) return;
 		_data[interrupt.FlagRegister] &= (byte)~interrupt.FlagMask;
 		ClearInterrupt (interrupt);
@@ -216,27 +163,6 @@ public class Cpu
 	
 	public Action AddClockEvent (Action callback, int cycles)
 	{
-		// Original Javascript code
-		// const { clockEventPool } = this;
-		// cycles = this.cycles + Math.max(1, cycles);
-		// const maybeEntry = clockEventPool.pop();
-		// const entry: AVRClockEventEntry = maybeEntry ?? { cycles, callback, next: null };
-		// entry.cycles = cycles;
-		// entry.callback = callback;
-		// let { nextClockEvent: clockEvent } = this;
-		// let lastItem = null;
-		// while (clockEvent && clockEvent.cycles < cycles) {
-		//   lastItem = clockEvent;
-		//   clockEvent = clockEvent.next;
-		// }
-		// if (lastItem) {
-		//   lastItem.next = entry;
-		//   entry.next = clockEvent;
-		// } else {
-		//   this.nextClockEvent = entry;
-		//   entry.next = clockEvent;
-		// }
-		// return callback;
 		cycles = Cycles + Math.Max (1, cycles);
 		var maybeEntry = _clockEventPool.Count > 0 ? _clockEventPool.Pop () : null;
 		var entry = maybeEntry ?? new AvrClockEventEntry { Cycles = cycles, Callback = callback, Next = null, };
@@ -259,12 +185,6 @@ public class Cpu
 
 	public bool UpdateClockEvent (Action callback, int cycles)
 	{
-		// Original Javascript code
-		// if (this.clearClockEvent(callback)) {
-		//   this.addClockEvent(callback, cycles);
-		//   return true;
-		// }
-		// return false;
 		if (ClearClockEvent (callback)) {
 			AddClockEvent (callback, cycles);
 			return true;
@@ -274,29 +194,6 @@ public class Cpu
 	
 	public bool ClearClockEvent (Action callback)
 	{
-		// Original Javascript code
-		// let { nextClockEvent: clockEvent } = this;
-		// if (!clockEvent) {
-		//   return false;
-		// }
-		// const { clockEventPool } = this;
-		// let lastItem = null;
-		// while (clockEvent) {
-		//   if (clockEvent.callback === callback) {
-		//     if (lastItem) {
-		//       lastItem.next = clockEvent.next;
-		//     } else {
-		//       this.nextClockEvent = clockEvent.next;
-		//     }
-		//     if (clockEventPool.length < 10) {
-		//       clockEventPool.push(clockEvent);
-		//     }
-		//     return true;
-		//   }
-		//   lastItem = clockEvent;
-		//   clockEvent = clockEvent.next;
-		// }
-		// return false;
 		var clockEvent = _nextClockEvent;
 		if (clockEvent == null) {
 			return false;
@@ -322,26 +219,6 @@ public class Cpu
 
 	public void Tick ()
 	{
-		// Original Javascript code
-		// const { nextClockEvent } = this;
-		// if (nextClockEvent && nextClockEvent.cycles <= this.cycles) {
-		//   nextClockEvent.callback();
-		//   this.nextClockEvent = nextClockEvent.next;
-		//   if (this.clockEventPool.length < 10) {
-		//     this.clockEventPool.push(nextClockEvent);
-		//   }
-		// }
-
-		// const { nextInterrupt } = this;
-		// if (this.interruptsEnabled && nextInterrupt >= 0) {
-		//   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		//   const interrupt = this.pendingInterrupts[nextInterrupt]!;
-		//   avrInterrupt(this, interrupt.address);
-		//   if (!interrupt.constant) {
-		//     this.clearInterrupt(interrupt);
-		//   }
-		// }
-
 		if (_nextClockEvent != null && _nextClockEvent.Cycles <= Cycles) {
 			_nextClockEvent.Callback ();
 			_nextClockEvent = _nextClockEvent.Next;

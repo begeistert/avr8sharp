@@ -150,7 +150,7 @@ public class AvrIoPort
 	private byte _lastPin = 0;
 	private byte _openCollector = 0;
 	
-	public List<Action<bool>>? ExternalClockListeners { get; set; }
+	public Dictionary<int, Action<bool>?> ExternalClockListeners { get; set; } = [];
 
 	public AvrIoPort (Cpu.Cpu cpu, AvrPortConfig portConfig)
 	{
@@ -176,7 +176,7 @@ public class AvrIoPort
 			return true;
 		};
 		
-		_cpu.WriteHooks[portConfig.PIN] = (value, oldValue, addr, mask) => {
+		_cpu.WriteHooks[portConfig.PIN] = (value, _, _, mask) => {
 			// Writing to 1 PIN toggles PORT bits
 			var oldPortValue = _cpu.Data[portConfig.PORT];
 			var ddrMask = _cpu.Data[portConfig.DDR];

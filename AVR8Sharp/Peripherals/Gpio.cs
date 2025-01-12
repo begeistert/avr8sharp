@@ -150,6 +150,15 @@ public class AvrIoPort
 	private byte _lastPin = 0;
 	private byte _openCollector = 0;
 	
+	public byte OpenCollector {
+		get {
+			return _openCollector;
+		}
+		set {
+			_openCollector = value;
+		}
+	}
+	
 	public Dictionary<int, Action<bool>?> ExternalClockListeners { get; set; } = [];
 
 	public AvrIoPort (Cpu.Cpu cpu, AvrPortConfig portConfig)

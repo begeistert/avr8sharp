@@ -1,8 +1,8 @@
 namespace AVR8Sharp.Cpu;
 
-public static class Interrupt
+public static class AvrInterrupt
 {
-	public static void AvrInterrupt (Cpu cpu, int address)
+	public static void DoAvrInterrupt (Cpu cpu, int address)
 	{
 		// Original Javascript Code
 		// const sp = cpu.dataView.getUint16(93, true);

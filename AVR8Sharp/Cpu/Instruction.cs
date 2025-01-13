@@ -1,10 +1,10 @@
 namespace AVR8Sharp.Cpu;
 
-public class Instruction
+public static class Instruction
 {
-	public void AvrInstruction (Cpu cpu)
+	public static void AvrInstruction (Cpu cpu)
 	{
-		var opcode = cpu.ProgramMemory.Span[(int)cpu.PC];
+		var opcode = cpu.ProgramMemory[(int)cpu.PC];
 		if ((opcode & 0xfc00) == 0x1c00) {
 			/* ADC, 0001 11rd dddd rrrr */
 			var d = cpu.Data[(opcode & 0x1f0) >> 4];
@@ -96,14 +96,14 @@ public class Instruction
 		else if ((opcode & 0xfc00) == 0xf400) {
 			/* BRBC, 1111 01kk kkkk ksss */
 			if ((cpu.Data[95] & (1 << (opcode & 7))) == 0) {
-				cpu.PC = (ushort)(cpu.PC + (((opcode & 0x1f8) >> 3) - (opcode & 0x200) != 0 ? 0x40 : 0));
+				cpu.PC = (ushort)(cpu.PC + (((opcode & 0x1f8) >> 3) - ((opcode & 0x200) != 0 ? 0x40 : 0)));
 				cpu.Cycles++;
 			}
 		}
 		else if ((opcode & 0xfc00) == 0xf000) {
 			/* BRBS, 1111 00kk kkkk ksss */
 			if ((cpu.Data[95] & (1 << (opcode & 7))) != 0) {
-				cpu.PC = (ushort)(cpu.PC + (((opcode & 0x1f8) >> 3) - (opcode & 0x200) != 0 ? 0x40 : 0));
+				cpu.PC = (ushort)(cpu.PC + (((opcode & 0x1f8) >> 3) - ((opcode & 0x200) != 0 ? 0x40 : 0)));
 				cpu.Cycles++;
 			}
 		}
@@ -119,7 +119,7 @@ public class Instruction
 		}
 		else if ((opcode & 0xfe0e) == 0x940e) {
 			/* CALL, 1001 010k kkkk 111k kkkk kkkk kkkk kkkk */
-			var k = (ushort)(cpu.ProgramMemory.Span[(int)(cpu.PC + 1)] | ((opcode & 1) << 16) | ((opcode & 0x1f0) << 13));
+			var k = (ushort)(cpu.ProgramMemory[(int)(cpu.PC + 1)] | ((opcode & 1) << 16) | ((opcode & 0x1f0) << 13));
 			var ret = cpu.PC + 2;
 			var sp = cpu.DataView.GetUint16(93, true);
 			cpu.Data[sp] = (byte)(ret & 255);
@@ -190,7 +190,7 @@ public class Instruction
 		} else if ((opcode & 0xfc00) == 0x1000) {
 			/* CPSE, 0001 00rd dddd rrrr */
 			if (cpu.Data[(opcode & 0x1f0) >> 4] == cpu.Data[(opcode & 0xf) | ((opcode & 0x200) >> 5)]) {
-				var nextOpcode = cpu.ProgramMemory.Span[(int)(cpu.PC + 1)];
+				var nextOpcode = cpu.ProgramMemory[(int)(cpu.PC + 1)];
 				var skipSize = IsTwoWordInstruction(nextOpcode) ? 2 : 1;
 				cpu.PC += (ushort)skipSize;
 				cpu.Cycles += skipSize;
@@ -308,7 +308,7 @@ public class Instruction
 			cpu.Data[95] = (byte)sreg;
 		} else if ((opcode & 0xfe0e) == 0x940c) {
 			/* JMP, 1001 010k kkkk 110k kkkk kkkk kkkk kkkk */
-			cpu.PC = (uint)(cpu.ProgramMemory.Span[(int)(cpu.PC + 1)] | (opcode & 1) << 16 | (opcode & 0x1f0) << 13) - 1;
+			cpu.PC = (uint)(cpu.ProgramMemory[(int)(cpu.PC + 1)] | (opcode & 1) << 16 | (opcode & 0x1f0) << 13) - 1;
 			cpu.Cycles += 2;
 		} else if ((opcode & 0xfe0f) == 0x9206) {
 			/* LAC, 1001 001r rrrr 0110 */
@@ -336,7 +336,7 @@ public class Instruction
 		} else if ((opcode & 0xfe0f) == 0x9000) {
 			/* LDS, 1001 000d dddd 0000 kkkk kkkk kkkk kkkk */
 			cpu.Cycles++;
-			var value = cpu.ReadData(cpu.ProgramMemory.Span[(int)(cpu.PC + 1)]);
+			var value = cpu.ReadData(cpu.ProgramMemory[(int)(cpu.PC + 1)]);
 			cpu.Data[(opcode & 0x1f0) >> 4] = value;
 			cpu.PC++;
 		} else if ((opcode & 0xfe0f) == 0x900c) {
@@ -644,7 +644,7 @@ public class Instruction
 		} else if ((opcode & 0xfe0f) == 0x9200) {
 			/* STS, 1001 001d dddd 0000 kkkk kkkk kkkk kkkk */
 			var value = cpu.Data[(opcode & 0x1f0) >> 4];
-			var addr = cpu.ProgramMemory.Span[(int)(cpu.PC + 1)];
+			var addr = cpu.ProgramMemory[(int)(cpu.PC + 1)];
 			cpu.WriteData(addr, value);
 			cpu.PC++;
 			cpu.Cycles++;
@@ -764,7 +764,7 @@ public class Instruction
 		cpu.Cycles++;
 	}
 	
-	private bool IsTwoWordInstruction(ushort opcode)
+	private static bool IsTwoWordInstruction(ushort opcode)
 	{
 		return 
 			/* LDS */

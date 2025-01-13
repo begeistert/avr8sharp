@@ -23,7 +23,7 @@ public class Cpu
 	public Action OnWatchdogReset = () => { };
 	public byte[] Data { get => _data; }
 	public DataView DataView { get; }
-	public Memory<ushort> ProgramMemory { get; }
+	public ushort[] ProgramMemory { get; }
 	public byte[] ProgBytes { get; }
 	public CpuMemoryReadHooks ReadHooks { get; } = new CpuMemoryReadHooks ();
 	public CpuMemoryWriteHooks WriteHooks { get; } = new CpuMemoryWriteHooks ();
@@ -57,10 +57,26 @@ public class Cpu
 	{
 		_data = new byte[sramBytes + RegisterSpace];
 		DataView = new DataView (ref _data);
-		ProgramMemory = new Memory<ushort> (program);
+		ProgramMemory = program;
 		ProgBytes = new byte[program.Length * 2];
 		// Copy the values using array.copy
 		Buffer.BlockCopy (program.ToArray (), 0, ProgBytes, 0, program.Length * 2);
+		
+		// Whether the program counter (PC) can address 22 bits (the default is 16)
+		PC22Bits = program.Length > 0x20000;
+		
+		// Reset the CPU
+		Reset ();
+	}
+	
+	public Cpu (byte[] program, int sramBytes = 8192)
+	{
+		_data = new byte[sramBytes + RegisterSpace];
+		DataView = new DataView (ref _data);
+		ProgBytes = program;
+		ProgramMemory = new ushort[program.Length / 2];
+		// Copy the values using array.copy
+		Buffer.BlockCopy (program, 0, ProgramMemory, 0, program.Length);
 		
 		// Whether the program counter (PC) can address 22 bits (the default is 16)
 		PC22Bits = program.Length > 0x20000;
@@ -73,6 +89,7 @@ public class Cpu
 	{
 		// Reset the CPU
 		// this.SP = this.Data.Count - 1;
+		SP = (ushort)(_data.Length - 1);
 		PC = 0;
 		for (var i = 0; i < _pendingInterrupts.Length; i++) {
 			_pendingInterrupts[i] = null;
@@ -230,7 +247,7 @@ public class Cpu
 		if (!InterruptsEnabled || _nextInterrupt < 0) return;
 		var interrupt = _pendingInterrupts[_nextInterrupt];
 		if (interrupt == null) return;
-		Interrupt.AvrInterrupt (this, interrupt.Address);
+		AvrInterrupt.DoAvrInterrupt (this, interrupt.Address);
 		if (!interrupt.Constant) {
 			ClearInterrupt (interrupt);
 		}

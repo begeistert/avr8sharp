@@ -25,20 +25,20 @@ public class AvrUsi
 	const int USIOIE = 1 << 6;
 	const int USISIE = 1 << 7;
 	
-	private static AvrInterruptConfig _start = new AvrInterruptConfig {
-		Address = 0xd,
-		FlagRegister = USISR,
-		FlagMask = USISIF,
-		EnableRegister = USICR,
-		EnableMask = USISIE
-	};
-	private static AvrInterruptConfig _overflow = new AvrInterruptConfig {
-		Address = 0xe,
-		FlagRegister = USISR,
-		FlagMask = USIOIF,
-		EnableRegister = USICR,
-		EnableMask = USIOIE
-	};
+	static AvrInterruptConfig _start = new AvrInterruptConfig (
+		address: 0xd,
+		flagRegister: USISR,
+		flagMask: USISIF,
+		enableRegister: USICR,
+		enableMask: USISIE
+	);
+	private static AvrInterruptConfig _overflow = new AvrInterruptConfig (
+		address: 0xe,
+		flagRegister: USISR,
+		flagMask: USIOIF,
+		enableRegister: USICR,
+		enableMask: USIOIE
+	);
 	
 	private Cpu.Cpu _cpu;
 	private AvrIoPort _port;

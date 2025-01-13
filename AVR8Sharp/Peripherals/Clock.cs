@@ -4,7 +4,7 @@ public class AvrClock
 {
 	public const int CLKPCE = 128;
 
-	public static AvrClockConfig ClockConfig = new AvrClockConfig { CLKPR = 0x61, };
+	public static AvrClockConfig ClockConfig = new AvrClockConfig (0x61);
 	public static int[] Prescalers = [
 		1, 2, 4, 8, 16, 32, 64, 128, 256, 
 		
@@ -73,8 +73,8 @@ public class AvrClock
 	}
 }
 
-public struct AvrClockConfig
+public class AvrClockConfig (byte clkpr)
 {
-	public byte CLKPR;
+	public readonly byte CLKPR = clkpr;
 }
 

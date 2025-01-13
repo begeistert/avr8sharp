@@ -23,94 +23,94 @@ public class AvrTimer
 		0, // External clock - see ExternalClockMode
 		0, // Ditto
 	};
-	public static AvrTimerConfig DefaultTimerBits = new AvrTimerConfig () {
+	public static AvrTimerConfig DefaultTimerBits = new AvrTimerConfig (
 		// TIFR bits
-		TOV = 1,
-		OCFA = 2,
-		OCFB = 4,
-		OCFC = 0, // Unused
+		tov: 1,
+		ocfa: 2,
+		ocfb: 4,
+		ocfc: 0, // Unused
 		
 		// TIMSK bits
-		TOIE = 1,
-		OCIEA = 2,
-		OCIEB = 4,
-		OCIEC = 0, // Unused
-	};
-	public static AvrTimerConfig Timer0Config = new AvrTimerConfig () {
-		Bits = 8,
-		Dividers = Timer01Dividers,
-		CaptureInterrupt = 0, // Not Available
-		ComparatorAInterrupt = 0x1c,
-		ComparatorBInterrupt = 0x1e,
-		ComparatorCInterrupt = 0,
-		OverflowInterrupt = 0x20,
-		TIFR = 0x35,
-		OCRA = 0x47,
-		OCRB = 0x48,
-		OCRC = 0, // Not Available
-		ICR = 0, // Not Available
-		TCNT = 0x46,
-		TCCRA = 0x44,
-		TCCRB = 0x45,
-		TCCRC = 0, // Not Available
-		TIMSK = 0x6e,
-		ComparatorPortA = AvrIoPort.PortDConfig.PORT,
-		ComparatorPinA = 6,
-		ComparatorPortB = AvrIoPort.PortDConfig.PORT,
-		ComparatorPinB = 5,
-		ComparatorPortC = 0, // Not Available
-		ComparatorPinC = 0, 
-		ExternalClockPort = AvrIoPort.PortDConfig.PORT,
-		ExternalClockPin = 4,
+		toie: 1,
+		ociea: 2,
+		ocieb: 4,
+		ociec: 0 // Unused
+	);
+	public static AvrTimerConfig Timer0Config = new AvrTimerConfig (
+		bits: 8,
+		dividers: Timer01Dividers,
+		captureInterrupt: 0, // Not Available
+		comparatorAInterrupt:0x1c,
+		comparatorBInterrupt: 0x1e,
+		comparatorCInterrupt: 0,
+		overflowInterrupt: 0x20,
+		tifr: 0x35,
+		ocra: 0x47,
+		ocrb: 0x48,
+		ocrc: 0, // Not Available
+		icr: 0, // Not Available
+		tcnt: 0x46,
+		tccra: 0x44,
+		tccrb: 0x45,
+		tccrc: 0, // Not Available
+		timsk: 0x6e,
+		comparatorPortA: AvrIoPort.PortDConfig.PORT,
+		comparatorPinA: 6,
+		comparatorPortB: AvrIoPort.PortDConfig.PORT,
+		comparatorPinB: 5,
+		comparatorPortC: 0, // Not Available
+		comparatorPinC: 0, 
+		externalClockPort: AvrIoPort.PortDConfig.PORT,
+		externalClockPin: 4,
 		// Apply default bits
-		TOV = DefaultTimerBits.TOV,
-		OCFA = DefaultTimerBits.OCFA,
-		OCFB = DefaultTimerBits.OCFB,
-		OCFC = DefaultTimerBits.OCFC,
-		TOIE = DefaultTimerBits.TOIE,
-		OCIEA = DefaultTimerBits.OCIEA,
-		OCIEB = DefaultTimerBits.OCIEB,
-		OCIEC = DefaultTimerBits.OCIEC,
-	};
-	public static AvrTimerConfig Timer1Config = new AvrTimerConfig () {
-		Bits = 16,
-		Dividers = Timer01Dividers,
-		CaptureInterrupt = 0x14,
-		ComparatorAInterrupt = 0x16,
-		ComparatorBInterrupt = 0x18,
-		ComparatorCInterrupt = 0,
-		OverflowInterrupt = 0x1a,
-		TIFR = 0x36,
-		OCRA = 0x88,
-		OCRB = 0x8a,
-		OCRC = 0, // Not Available
-		ICR = 0x86,
-		TCNT = 0x84,
-		TCCRA = 0x80,
-		TCCRB = 0x81,
-		TCCRC = 0x82,
-		TIMSK = 0x6f,
-		ComparatorPortA = AvrIoPort.PortBConfig.PORT,
-		ComparatorPinA = 1,
-		ComparatorPortB = AvrIoPort.PortBConfig.PORT,
-		ComparatorPinB = 2,
-		ComparatorPortC = 0, // Not Available
-		ComparatorPinC = 0, 
-		ExternalClockPort = AvrIoPort.PortDConfig.PORT,
-		ExternalClockPin = 5,
+		tov: DefaultTimerBits.TOV,
+		ocfa: DefaultTimerBits.OCFA,
+		ocfb: DefaultTimerBits.OCFB,
+		ocfc: DefaultTimerBits.OCFC,
+		toie: DefaultTimerBits.TOIE,
+		ociea: DefaultTimerBits.OCIEA,
+		ocieb: DefaultTimerBits.OCIEB,
+		ociec: DefaultTimerBits.OCIEC
+	);
+	public static AvrTimerConfig Timer1Config = new AvrTimerConfig (
+		bits: 16,
+		dividers: Timer01Dividers,
+		captureInterrupt: 0x14,
+		comparatorAInterrupt: 0x16,
+		comparatorBInterrupt: 0x18,
+		comparatorCInterrupt: 0,
+		overflowInterrupt: 0x1a,
+		tifr: 0x36,
+		ocra: 0x88,
+		ocrb: 0x8a,
+		ocrc: 0, // Not Available
+		icr: 0x86,
+		tcnt: 0x84,
+		tccra: 0x80,
+		tccrb: 0x81,
+		tccrc: 0x82,
+		timsk: 0x6f,
+		comparatorPortA: AvrIoPort.PortBConfig.PORT,
+		comparatorPinA: 1,
+		comparatorPortB: AvrIoPort.PortBConfig.PORT,
+		comparatorPinB: 2,
+		comparatorPortC: 0, // Not Available
+		comparatorPinC: 0, 
+		externalClockPort: AvrIoPort.PortDConfig.PORT,
+		externalClockPin: 5,
 		// Apply default bits
-		TOV = DefaultTimerBits.TOV,
-		OCFA = DefaultTimerBits.OCFA,
-		OCFB = DefaultTimerBits.OCFB,
-		OCFC = DefaultTimerBits.OCFC,
-		TOIE = DefaultTimerBits.TOIE,
-		OCIEA = DefaultTimerBits.OCIEA,
-		OCIEB = DefaultTimerBits.OCIEB,
-		OCIEC = DefaultTimerBits.OCIEC,
-	};
-	public static AvrTimerConfig Timer2Config = new AvrTimerConfig () {
-		Bits = 8,
-		Dividers = [
+		tov: DefaultTimerBits.TOV,
+		ocfa: DefaultTimerBits.OCFA,
+		ocfb: DefaultTimerBits.OCFB,
+		ocfc: DefaultTimerBits.OCFC,
+		toie: DefaultTimerBits.TOIE,
+		ociea: DefaultTimerBits.OCIEA,
+		ocieb: DefaultTimerBits.OCIEB,
+		ociec: DefaultTimerBits.OCIEC
+	);
+	public static AvrTimerConfig Timer2Config = new AvrTimerConfig (
+		bits: 8,
+		dividers: [
 			0,
 			1,
 			8,
@@ -120,65 +120,65 @@ public class AvrTimer
 			256,
 			1024
 		],
-		CaptureInterrupt = 0, // Not Available
-		ComparatorAInterrupt = 0x0e,
-		ComparatorBInterrupt = 0x10,
-		ComparatorCInterrupt = 0,
-		OverflowInterrupt = 0x12,
-		TIFR = 0x37,
-		OCRA = 0xb3,
-		OCRB = 0xb4,
-		OCRC = 0, // Not Available
-		ICR = 0, // Not Available
-		TCNT = 0xb2,
-		TCCRA = 0xb0,
-		TCCRB = 0xb1,
-		TCCRC = 0, // Not Available
-		TIMSK = 0x70,
-		ComparatorPortA = AvrIoPort.PortBConfig.PORT,
-		ComparatorPinA = 3,
-		ComparatorPortB = AvrIoPort.PortDConfig.PORT,
-		ComparatorPinB = 3,
-		ComparatorPortC = 0, // Not Available
-		ComparatorPinC = 0, 
-		ExternalClockPort = 0, // Not Available
-		ExternalClockPin = 0,
+		captureInterrupt: 0, // Not Available
+		comparatorAInterrupt: 0x0e,
+		comparatorBInterrupt: 0x10,
+		comparatorCInterrupt: 0,
+		overflowInterrupt: 0x12,
+		tifr: 0x37,
+		ocra: 0xb3,
+		ocrb: 0xb4,
+		ocrc: 0, // Not Available
+		icr: 0, // Not Available
+		tcnt: 0xb2,
+		tccra: 0xb0, 
+		tccrb: 0xb1,
+		tccrc: 0, // Not Available
+		timsk: 0x70,
+		comparatorPortA: AvrIoPort.PortBConfig.PORT,
+		comparatorPinA: 3,
+		comparatorPortB: AvrIoPort.PortDConfig.PORT,
+		comparatorPinB: 3,
+		comparatorPortC: 0, // Not Available
+		comparatorPinC: 0, 
+		externalClockPort: 0, // Not Available
+		externalClockPin: 0,
 		// Apply default bits
-		TOV = DefaultTimerBits.TOV,
-		OCFA = DefaultTimerBits.OCFA,
-		OCFB = DefaultTimerBits.OCFB,
-		OCFC = DefaultTimerBits.OCFC,
-		TOIE = DefaultTimerBits.TOIE,
-		OCIEA = DefaultTimerBits.OCIEA,
-		OCIEB = DefaultTimerBits.OCIEB,
-		OCIEC = DefaultTimerBits.OCIEC,
-	};
+		tov: DefaultTimerBits.TOV,
+		ocfa: DefaultTimerBits.OCFA,
+		ocfb: DefaultTimerBits.OCFB,
+		ocfc: DefaultTimerBits.OCFC,
+		toie: DefaultTimerBits.TOIE,
+		ociea: DefaultTimerBits.OCIEA,
+		ocieb: DefaultTimerBits.OCIEB,
+		ociec: DefaultTimerBits.OCIEC
+	);
 	public static WgmConfig[] WgmModes8Bit = [
-		new WgmConfig { Mode = TimerMode.Normal, TimerTopValue = 0xff, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = 0xff, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.CTC, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = 0xff, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = OCToggle, },
-		new WgmConfig { Mode = TimerMode.Reserved, TimerTopValue = 0xff, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = OCToggle, },
+		new WgmConfig (mode:TimerMode.Normal, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.CTC, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: OCToggle),
+		new WgmConfig (mode:TimerMode.Reserved, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Immediate,tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: OCToggle),
 	];
 	public static WgmConfig[] WgmModes16Bits = [
-		new WgmConfig { Mode = TimerMode.Normal, TimerTopValue = 0xffff, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = 0x00ff, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = 0x01ff, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = 0x03ff, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.CTC, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = 0x00ff, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = 0x01ff, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = 0x03ff, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseFrequencyCorrect, TimerTopValue = TopICR, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseFrequencyCorrect, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = OCToggle, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = TopICR, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.PWMPhaseCorrect, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Top, TOVUpdateMode = TOVUpdateMode.Bottom, Flags = OCToggle, },
-		new WgmConfig { Mode = TimerMode.CTC, TimerTopValue = TopICR, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.Reserved, TimerTopValue = 0xffff, OCRUpdateMode = OCRUpdateMode.Immediate, TOVUpdateMode = TOVUpdateMode.Max, Flags = 0, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = TopICR, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = OCToggle, },
-		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = OCToggle, },
+		new WgmConfig (mode:TimerMode.Normal, timerTopValue: 0xffff, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: 0x00ff, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: 0x01ff, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: 0x03ff, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.CTC, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: 0x00ff, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: 0x01ff, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: 0x03ff, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseFrequencyCorrect, timerTopValue: TopICR, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseFrequencyCorrect, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Bottom, flags: OCToggle),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: TopICR, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
+		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: OCToggle),
+		new WgmConfig (mode:TimerMode.CTC, timerTopValue: TopICR, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.Reserved, timerTopValue: 0xffff, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: TopICR, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: OCToggle),
+		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: OCToggle),
 	];
 	
 	private static Action? CountParameterLess;
@@ -288,37 +288,37 @@ public class AvrTimer
 			CountParameterLess = () => Count ();
 		}
 		
-		_ovf = new AvrInterruptConfig {
-			Address = config.OverflowInterrupt,
-			EnableRegister = config.TIMSK,
-			EnableMask = config.TOIE,
-			FlagRegister = config.TIFR,
-			FlagMask = config.TOV,
-		};
+		_ovf = new AvrInterruptConfig (
+			address: config.OverflowInterrupt,
+			enableRegister: config.TIMSK,
+			enableMask: config.TOIE, 
+			flagRegister: config.TIFR,
+			flagMask: config.TOV
+		);
 		
-		_ocfa = new AvrInterruptConfig {
-			Address = config.ComparatorAInterrupt,
-			EnableRegister = config.TIMSK,
-			EnableMask = config.OCIEA,
-			FlagRegister = config.TIFR,
-			FlagMask = config.OCFA,
-		};
+		_ocfa = new AvrInterruptConfig (
+			address: config.ComparatorAInterrupt,
+			enableRegister: config.TIMSK,
+			enableMask: config.OCIEA,
+			flagRegister: config.TIFR,
+			flagMask: config.OCFA
+		);
+
+		_ocfb = new AvrInterruptConfig (
+			address: config.ComparatorBInterrupt,
+			enableRegister: config.TIMSK,
+			enableMask: config.OCIEB,
+			flagRegister: config.TIFR,
+			flagMask: config.OCFB
+		);
 		
-		_ocfb = new AvrInterruptConfig {
-			Address = config.ComparatorBInterrupt,
-			EnableRegister = config.TIMSK,
-			EnableMask = config.OCIEB,
-			FlagRegister = config.TIFR,
-			FlagMask = config.OCFB,
-		};
-		
-		_ocfc = new AvrInterruptConfig {
-			Address = config.ComparatorCInterrupt,
-			EnableRegister = config.TIMSK,
-			EnableMask = config.OCIEC,
-			FlagRegister = config.TIFR,
-			FlagMask = config.OCFC,
-		};
+		_ocfc = new AvrInterruptConfig (
+			address: config.ComparatorCInterrupt,
+			enableRegister: config.TIMSK,
+			enableMask: config.OCIEC,
+			flagRegister: config.TIFR,
+			flagMask: config.OCFC
+		);
 
 		UpdateWgmConfig ();
 		
@@ -759,59 +759,130 @@ public class AvrTimer
 public class AvrTimerConfig
 {
 	public byte Bits;
-	public int[] Dividers = [];
+	public int[]? Dividers = [];
 	
 	// Interrupt Vectors
-	public byte CaptureInterrupt;
-	public byte ComparatorAInterrupt;
-	public byte ComparatorBInterrupt;
-	public byte ComparatorCInterrupt; // Optional: 0 if not used
-	public byte OverflowInterrupt;
+	public readonly byte CaptureInterrupt;
+	public readonly byte ComparatorAInterrupt;
+	public readonly byte ComparatorBInterrupt;
+	public readonly byte ComparatorCInterrupt; // Optional: 0 if not used
+	public readonly byte OverflowInterrupt;
 	
 	// Register Addresses
-	public byte TIFR;
-	public byte OCRA;
-	public byte OCRB;
-	public byte OCRC; // Optional: 0 if not used
-	public byte ICR;
-	public byte TCNT;
-	public byte TCCRA;
-	public byte TCCRB;
-	public byte TCCRC;
-	public byte TIMSK;
+	public readonly byte TIFR;
+	public readonly byte OCRA;
+	public readonly byte OCRB;
+	public readonly byte OCRC; // Optional: 0 if not used
+	public readonly byte ICR;
+	public readonly byte TCNT;
+	public readonly byte TCCRA;
+	public readonly byte TCCRB;
+	public readonly byte TCCRC;
+	public readonly byte TIMSK;
 	
 	// TIFR bits
-	public byte TOV;
-	public byte OCFA;
-	public byte OCFB;
-	public byte OCFC; // Optional: Only if CompareCInterrupt is != 0
+	public readonly byte TOV;
+	public readonly byte OCFA;
+	public readonly byte OCFB;
+	public readonly byte OCFC; // Optional: Only if CompareCInterrupt is != 0
 	
 	// TIMSK bits
-	public byte TOIE;
-	public byte OCIEA;
-	public byte OCIEB;
-	public byte OCIEC; // Optional: Only if CompareCInterrupt is != 0
+	public readonly byte TOIE;
+	public readonly byte OCIEA;
+	public readonly byte OCIEB;
+	public readonly byte OCIEC; // Optional: Only if CompareCInterrupt is != 0
 	
 	// Output Compare Inputs
-	public ushort ComparatorPortA;
-	public byte ComparatorPinA;
-	public ushort ComparatorPortB;
-	public byte ComparatorPinB;
-	public ushort ComparatorPortC; // Optional: 0 if not used
-	public byte ComparatorPinC; 
+	public readonly ushort ComparatorPortA;
+	public readonly byte ComparatorPinA;
+	public readonly ushort ComparatorPortB;
+	public readonly byte ComparatorPinB;
+	public readonly ushort ComparatorPortC; // Optional: 0 if not used
+	public readonly byte ComparatorPinC; 
 	
 	// External clock pin
-	public ushort ExternalClockPort;
-	public byte ExternalClockPin;
+	public readonly ushort ExternalClockPort;
+	public readonly byte ExternalClockPin;
+	
+	public AvrTimerConfig (
+		byte bits = 0, 
+		int[]? dividers = null, 
+		byte captureInterrupt = 0, 
+		byte comparatorAInterrupt = 0, 
+		byte comparatorBInterrupt = 0, 
+		byte comparatorCInterrupt = 0, 
+		byte overflowInterrupt = 0, 
+		byte tifr = 0, 
+		byte ocra = 0, 
+		byte ocrb = 0, 
+		byte ocrc = 0, 
+		byte icr = 0, 
+		byte tcnt = 0, 
+		byte tccra = 0, 
+		byte tccrb = 0, 
+		byte tccrc = 0, 
+		byte timsk = 0, 
+		byte tov = 0, 
+		byte ocfa = 0, 
+		byte ocfb = 0, 
+		byte ocfc = 0, 
+		byte toie = 0, 
+		byte ociea = 0, 
+		byte ocieb = 0, 
+		byte ociec = 0, 
+		ushort comparatorPortA = 0, 
+		byte comparatorPinA = 0, 
+		ushort comparatorPortB = 0, 
+		byte comparatorPinB = 0, 
+		ushort comparatorPortC = 0, 
+		byte comparatorPinC = 0, 
+		ushort externalClockPort = 0, 
+		byte externalClockPin = 0
+	)
+	{
+		Bits = bits;
+		Dividers = dividers;
+		CaptureInterrupt = captureInterrupt;
+		ComparatorAInterrupt = comparatorAInterrupt;
+		ComparatorBInterrupt = comparatorBInterrupt;
+		ComparatorCInterrupt = comparatorCInterrupt;
+		OverflowInterrupt = overflowInterrupt;
+		TIFR = tifr;
+		OCRA = ocra;
+		OCRB = ocrb;
+		OCRC = ocrc;
+		ICR = icr;
+		TCNT = tcnt;
+		TCCRA = tccra;
+		TCCRB = tccrb;
+		TCCRC = tccrc;
+		TIMSK = timsk;
+		TOV = tov;
+		OCFA = ocfa;
+		OCFB = ocfb;
+		OCFC = ocfc;
+		TOIE = toie;
+		OCIEA = ociea;
+		OCIEB = ocieb;
+		OCIEC = ociec;
+		ComparatorPortA = comparatorPortA;
+		ComparatorPinA = comparatorPinA;
+		ComparatorPortB = comparatorPortB;
+		ComparatorPinB = comparatorPinB;
+		ComparatorPortC = comparatorPortC;
+		ComparatorPinC = comparatorPinC;
+		ExternalClockPort = externalClockPort;
+		ExternalClockPin = externalClockPin;
+	}
 }
 
-public class WgmConfig
+public class WgmConfig (TimerMode mode, int timerTopValue, OCRUpdateMode ocrUpdateMode, TOVUpdateMode tovUpdateMode, int flags)
 {
-	public TimerMode Mode;
-	public int TimerTopValue;
-	public OCRUpdateMode OCRUpdateMode;
-	public TOVUpdateMode TOVUpdateMode;
-	public int Flags;
+	public readonly TimerMode Mode = mode;
+	public readonly int TimerTopValue = timerTopValue;
+	public readonly OCRUpdateMode OCRUpdateMode = ocrUpdateMode;
+	public readonly TOVUpdateMode TOVUpdateMode = tovUpdateMode;
+	public readonly int Flags = flags;
 }
 
 public enum ExternalClockMode

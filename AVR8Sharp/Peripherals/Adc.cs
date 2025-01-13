@@ -1,42 +1,42 @@
-using System.Collections;
 using AVR8Sharp.Cpu;
+using ADCMuxConfiguration = System.Collections.Generic.Dictionary<int, AVR8Sharp.Peripherals.AdcMuxInput>;
 
 namespace AVR8Sharp.Peripherals;
 
 public class AvrAdc
 {
 	public static ADCMuxConfiguration Atmega328Channels = new ADCMuxConfiguration {
-		{ 0, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 0, } },
-		{ 1, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 1, } },
-		{ 2, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 2, } },
-		{ 3, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 3, } },
-		{ 4, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 4, } },
-		{ 5, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 5, } },
-		{ 6, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 6, } },
-		{ 7, new AdcMuxInput { Type = AdcMuxInputType.SingleEnded, Channel = 7, } },
-		{ 8, new AdcMuxInput { Type = AdcMuxInputType.Temperature, } },
-		{ 14, new AdcMuxInput { Type = AdcMuxInputType.Constant, Voltage = 1.1, } },
-		{ 15, new AdcMuxInput { Type = AdcMuxInputType.Constant, Voltage = 0, } },
+		{ 0, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 0 ) },
+		{ 1, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 1) },
+		{ 2, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 2) },
+		{ 3, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 3) },
+		{ 4, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 4) },
+		{ 5, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 5) },
+		{ 6, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 6) },
+		{ 7, new AdcMuxInput (type: AdcMuxInputType.SingleEnded, channel: 7) },
+		{ 8, new AdcMuxInput (type: AdcMuxInputType.Temperature) },
+		{ 14, new AdcMuxInput (type: AdcMuxInputType.Constant, voltage: 1.1) },
+		{ 15, new AdcMuxInput (type: AdcMuxInputType.Constant, voltage: 0) },
 	};
-	public static AdcMuxInput FallbackMuxInput = new AdcMuxInput { Type = AdcMuxInputType.Constant, Voltage = 0, };
-	public static AdcConfig AdcConfig = new AdcConfig {
-		ADMUX = 0x7c,
-		ADCSRA = 0x7a,
-		ADCSRB = 0x7b,
-		ADCL = 0x78,
-		ADCH = 0x70,
-		DIDR0 = 0x73,
-		AdcInterrupt = 0x2a,
-		NumChannels = 8,
-		MuxInputMask = 0xf,
-		MuxChannels = Atmega328Channels,
-		AdcReferences = [
+	public static AdcMuxInput FallbackMuxInput = new AdcMuxInput (type: AdcMuxInputType.Constant, voltage: 0);
+	public static AdcConfig AdcConfig = new AdcConfig (
+		admux: 0x7c,
+		adcsra: 0x7a,
+		adcsrb: 0x7b,
+		adcl: 0x78,
+		adch: 0x70,
+		didr0: 0x73,
+		adcInterrupt: 0x2a,
+		numChannels: 8,
+		muxInputMask: 0xf,
+		muxChannels: Atmega328Channels,
+		adcReferences: [
 			AdcReference.AVCC,
 			AdcReference.AREF,
 			AdcReference.Internal1V1,
 			AdcReference.Internal2V56
-		],
-	};
+		]
+	);
 	
 	public const int ADPS_MASK = 0x7;
 	public const int ADIE = 0x8;
@@ -121,13 +121,13 @@ public class AvrAdc
 	{
 		_cpu = cpu;
 		_config = config;
-		_adc = new AvrInterruptConfig {
-			Address = _config.AdcInterrupt,
-			FlagRegister = _config.ADCSRA,
-			FlagMask = ADIF,
-			EnableRegister = _config.ADCSRA,
-			EnableMask = ADIE,
-		};
+		_adc = new AvrInterruptConfig (
+			address: _config.AdcInterrupt,
+			flagRegister: _config.ADCSRA, 
+			flagMask: ADIF,
+			enableRegister: _config.ADCSRA,
+			enableMask: ADIE
+		);
 		_channelValues = new double[config.NumChannels];
 		_cpu.WriteHooks[config.ADCSRA] = (value, oldValue, _, _) => {
 			if ((value & ADEN) != 0 && (oldValue & ADEN) == 0) {
@@ -218,49 +218,29 @@ public enum AdcMuxInputType
 	Temperature = 3,
 }
 
-public struct AdcMuxInput
+public class AdcMuxInput (AdcMuxInputType type, int channel = 0, double voltage = 0, int positiveChannel = 0, int negativeChannel = 0, int gain = 1)
 {
-	public AdcMuxInputType Type;
-	public int Channel;
-	public double Voltage;
-	public int PositiveChannel;
-	public int NegativeChannel;
-	public int Gain;
+	public readonly AdcMuxInputType Type = type;
+	public readonly int Channel = channel;
+	public readonly double Voltage = voltage;
+	public readonly int PositiveChannel = positiveChannel;
+	public readonly int NegativeChannel = negativeChannel;
+	public readonly int Gain = gain;
 }
 
-public class ADCMuxConfiguration : IEnumerable
+public class AdcConfig (byte admux, byte adcsra, byte adcsrb, byte adcl, byte adch, byte didr0, byte adcInterrupt, byte numChannels, byte muxInputMask, ADCMuxConfiguration muxChannels, AdcReference?[] adcReferences)
 {
-	private readonly Dictionary<ushort, AdcMuxInput?> _inputs = [];
-	public AdcMuxInput? this [ushort address] {
-		get {
-			return _inputs[address];
-		}
-		set {
-			_inputs[address] = value;
-		}
-	}
-	public void Add (ushort address, AdcMuxInput input)
-	{
-		_inputs[address] = input;
-	}
-	public IEnumerator GetEnumerator ()
-	{
-		return _inputs.GetEnumerator ();
-	}
-}
+	public readonly byte ADMUX = admux;
+	public readonly byte ADCSRA = adcsra;
+	public readonly byte ADCSRB = adcsrb;
+	public readonly byte ADCL = adcl;
+	public readonly byte ADCH = adch;
+	public readonly byte DIDR0 = didr0;
+	public readonly byte AdcInterrupt = adcInterrupt;
+	public readonly byte NumChannels = numChannels;
+	public readonly byte MuxInputMask = muxInputMask;
+	public readonly ADCMuxConfiguration MuxChannels = muxChannels;
+	public readonly AdcReference?[] AdcReferences = adcReferences;
 
-public class AdcConfig
-{
-	public byte ADMUX;
-	public byte ADCSRA;
-	public byte ADCSRB;
-	public byte ADCL;
-	public byte ADCH;
-	public byte DIDR0;
-	public byte AdcInterrupt;
-	public byte NumChannels;
-	public byte MuxInputMask;
-	public ADCMuxConfiguration MuxChannels;
-	public AdcReference?[] AdcReferences;
 }
 

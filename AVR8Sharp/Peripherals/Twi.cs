@@ -90,13 +90,13 @@ public class AvrTwi
 		
 		EventHandler = new NoopTwiEventHandler (this);
 		
-		_twi = new AvrInterruptConfig {
-			Address = _config.TwiInterrupt,
-			FlagRegister = _config.TWCR,
-			FlagMask = TWCR_TWINT,
-			EnableRegister = _config.TWCR,
-			EnableMask = TWCR_TWIE
-		};
+		_twi = new AvrInterruptConfig (
+			address: _config.TwiInterrupt,
+			flagRegister: _config.TWCR,
+			flagMask: TWCR_TWINT,
+			enableRegister: _config.TWCR,
+			enableMask: TWCR_TWIE
+		);
 		
 		this.UpdateStatus (STATUS_TWI_IDLE);
 		
@@ -205,7 +205,7 @@ public class NoopTwiEventHandler : ITwiEventHandler
 	}
 }
 
-public struct TwiConfig
+public class TwiConfig
 {
 	public byte TwiInterrupt;
 	

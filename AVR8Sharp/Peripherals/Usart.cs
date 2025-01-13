@@ -143,29 +143,33 @@ public class AvrUsart
 		_cpu = cpu;
 		_config = config;
 		_freqHz = freqHz;
+
+		_rxc = new AvrInterruptConfig (
+			address: _config.RxCompleteInterrupt,
+			flagRegister: _config.UCSRA,
+			flagMask: UCSRA_RXC,
+			enableRegister: _config.UCSRB,
+			enableMask: UCSRB_RXCIE,
+			constant: true
+		);
 		
-		_rxc = new AvrInterruptConfig {
-			Address = _config.RxCompleteInterrupt,
-			FlagRegister = _config.UCSRA,
-			FlagMask = UCSRA_RXC,
-			EnableRegister = _config.UCSRB,
-			EnableMask = UCSRB_RXCIE,
-			Constant = true
-		};
-		_udre = new AvrInterruptConfig {
-			Address = _config.DataRegisterEmptyInterrupt,
-			FlagRegister = _config.UCSRA,
-			FlagMask = UCSRA_UDRE,
-			EnableRegister = _config.UCSRB,
-			EnableMask = UCSRB_UDRIE
-		};
-		_txc = new AvrInterruptConfig {
-			Address = _config.TxCompleteInterrupt,
-			FlagRegister = _config.UCSRA,
-			FlagMask = UCSRA_TXC,
-			EnableRegister = _config.UCSRB,
-			EnableMask = UCSRB_TXCIE
-		};
+		_udre = new AvrInterruptConfig (
+			address: _config.DataRegisterEmptyInterrupt,
+			flagRegister: _config.UCSRA,
+			flagMask: UCSRA_UDRE,
+			enableRegister: _config.UCSRB,
+			enableMask: UCSRB_UDRIE,
+			constant: true
+		);
+		
+		_txc = new AvrInterruptConfig (
+			address: _config.TxCompleteInterrupt,
+			flagRegister: _config.UCSRA,
+			flagMask: UCSRA_TXC,
+			enableRegister: _config.UCSRB,
+			enableMask: UCSRB_TXCIE,
+			constant: true
+		);
 		
 		Reset ();
 		
@@ -273,7 +277,7 @@ public class AvrUsart
 	}
 }
 
-public struct UsartConfig
+public class UsartConfig
 {
 	public byte RxCompleteInterrupt;
 	public byte DataRegisterEmptyInterrupt;

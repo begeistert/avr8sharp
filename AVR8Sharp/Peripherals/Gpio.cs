@@ -3,139 +3,139 @@ namespace AVR8Sharp.Peripherals;
 
 public class AvrIoPort
 {
-	public static AvrExternalInterrupt INT0 = new AvrExternalInterrupt {
-		EICR = 0x69,
-		EIMSK = 0x3d,
-		EIFR = 0x3c,
-		IscOffset = 0,
-		Index = 0,
-		Interrupt = 2,
-	};
+	public static AvrExternalInterrupt INT0 = new AvrExternalInterrupt (
+		eicr: 0x69,
+		eimsk: 0x3d,
+		eifr: 0x3c,
+		iscOffset: 0,
+		index: 0,
+		interrupt: 2
+	);
 	
-	public static AvrExternalInterrupt INT1 = new AvrExternalInterrupt {
-		EICR = 0x69,
-		EIMSK = 0x3d,
-		EIFR = 0x3c,
-		IscOffset = 2,
-		Index = 1,
-		Interrupt = 4,
-	};
+	public static AvrExternalInterrupt INT1 = new AvrExternalInterrupt (
+		eicr: 0x69,
+		eimsk: 0x3d,
+		eifr: 0x3c,
+		iscOffset: 2,
+		index: 1,
+		interrupt: 4
+	);
 	
-	public static AvrPinChangeInterrupt PCINT0 = new AvrPinChangeInterrupt {
-		PCIE = 0,
-		PCICR = 0x68,
-		PCIFR = 0x3b,
-		PCMSK = 0x6b,
-		PinChangeInterrupt = 6,
-		Mask = 0xFF,
-		Offset = 0,
-	};
+	public static AvrPinChangeInterrupt PCINT0 = new AvrPinChangeInterrupt (
+		pcie: 0,
+		pcicr: 0x68,
+		pcifr: 0x3b,
+		pcmsk: 0x6b,
+		pinChangeInterrupt: 6,
+		mask: 0xFF,
+		offset: 0
+	);
+
+	public static AvrPinChangeInterrupt PCINT1 = new AvrPinChangeInterrupt (
+		pcie:1,
+		pcicr:0x68,
+		pcifr:0x3b,
+		pcmsk:0x6c,
+		pinChangeInterrupt:8,
+		mask:0xFF,
+		offset:0
+	);
 	
-	public static AvrPinChangeInterrupt PCINT1 = new AvrPinChangeInterrupt {
-		PCIE = 1,
-		PCICR = 0x68,
-		PCIFR = 0x3b,
-		PCMSK = 0x6c,
-		PinChangeInterrupt = 8,
-		Mask = 0xFF,
-		Offset = 0,
-	};
+	public static AvrPinChangeInterrupt PCINT2 = new AvrPinChangeInterrupt (
+		pcie: 2,
+		pcicr: 0x68,
+		pcifr: 0x3b,
+		pcmsk: 0x6c,
+		pinChangeInterrupt: 10,
+		mask: 0xFF,
+		offset: 0
+	);
 	
-	public static AvrPinChangeInterrupt PCINT2 = new AvrPinChangeInterrupt {
-		PCIE = 2,
-		PCICR = 0x68,
-		PCIFR = 0x3b,
-		PCMSK = 0x6c,
-		PinChangeInterrupt = 10,
-		Mask = 0xFF,
-		Offset = 0,
-	};
+	public static AvrPortConfig PortAConfig = new AvrPortConfig (
+		pin: 0x20,
+		ddr: 0x21,
+		port: 0x22,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortAConfig = new AvrPortConfig {
-		PIN = 0x20,
-		DDR = 0x21,
-		PORT = 0x22,
-		ExternalInterrupts = [],
-	};
-	
-	public static AvrPortConfig PortBConfig = new AvrPortConfig {
-		PIN = 0x23,
-		DDR = 0x24,
-		PORT = 0x25,
+	public static AvrPortConfig PortBConfig = new AvrPortConfig (
+		pin: 0x23,
+		ddr: 0x24,
+		port: 0x25,
 		
 		// Interrupt settings
-		PinChange = PCINT0,
-		ExternalInterrupts = [],
-	};
+		pinChange: PCINT0,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortCConfig = new AvrPortConfig {
-		PIN = 0x26,
-		DDR = 0x27,
-		PORT = 0x28,
+	public static AvrPortConfig PortCConfig = new AvrPortConfig (
+		pin: 0x26,
+		ddr: 0x27,
+		port: 0x28,
 		
 		// Interrupt settings
-		PinChange = PCINT1,
-		ExternalInterrupts = [],
-	};
+		pinChange: PCINT1,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortDConfig = new AvrPortConfig {
-		PIN = 0x29,
-		DDR = 0x2a,
-		PORT = 0x2b,
+	public static AvrPortConfig PortDConfig = new AvrPortConfig (
+		pin: 0x29,
+		ddr: 0x2a,
+		port: 0x2b,
 		
 		// Interrupt settings
-		PinChange = PCINT2,
-		ExternalInterrupts = [null, null, INT0, INT1, ],
-	};
+		pinChange: PCINT2,
+		externalInterrupts: [null, null, INT0, INT1, ]
+	);
+
+	public static AvrPortConfig PortEConfig = new AvrPortConfig (
+		pin: 0x2c,
+		ddr: 0x2d,
+		port: 0x2e,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortEConfig = new AvrPortConfig {
-		PIN = 0x2c,
-		DDR = 0x2d,
-		PORT = 0x2e,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortFConfig = new AvrPortConfig (
+		pin: 0x2f,
+		ddr: 0x30,
+		port: 0x31,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortFConfig = new AvrPortConfig {
-		PIN = 0x2f,
-		DDR = 0x30,
-		PORT = 0x31,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortGConfig = new AvrPortConfig (
+		pin: 0x32,
+		ddr: 0x33,
+		port: 0x34,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortGConfig = new AvrPortConfig {
-		PIN = 0x32,
-		DDR = 0x33,
-		PORT = 0x34,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortHConfig = new AvrPortConfig (
+		pin: 0x100,
+		ddr: 0x101,
+		port: 0x102,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortHConfig = new AvrPortConfig {
-		PIN = 0x100,
-		DDR = 0x101,
-		PORT = 0x102,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortJConfig = new AvrPortConfig (
+		pin: 0x103,
+		ddr: 0x104,
+		port: 0x105,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortJConfig = new AvrPortConfig {
-		PIN = 0x103,
-		DDR = 0x104,
-		PORT = 0x105,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortKConfig = new AvrPortConfig (
+		pin: 0x106,
+		ddr: 0x107,
+		port: 0x108,
+		externalInterrupts: []
+	);
 	
-	public static AvrPortConfig PortKConfig = new AvrPortConfig {
-		PIN = 0x106,
-		DDR = 0x107,
-		PORT = 0x108,
-		ExternalInterrupts = [],
-	};
-	
-	public static AvrPortConfig PortLConfig = new AvrPortConfig {
-		PIN = 0x109,
-		DDR = 0x10a,
-		PORT = 0x10b,
-		ExternalInterrupts = [],
-	};
+	public static AvrPortConfig PortLConfig = new AvrPortConfig (
+		pin: 0x109,
+		ddr: 0x10a,
+		port: 0x10b,
+		externalInterrupts: []
+	);
 	
 	private readonly List<AvrInterruptConfig?> _externalInts = [];
 	private readonly AvrInterruptConfig? _pcint;
@@ -200,13 +200,13 @@ public class AvrIoPort
 		
 		_externalInts = portConfig.ExternalInterrupts.Select (externalConfig => {
 			if (externalConfig != null) {
-				return new AvrInterruptConfig {
-					Address = externalConfig.Value.Interrupt,
-					FlagRegister = externalConfig.Value.EIFR,
-					FlagMask = (byte)(1 << externalConfig.Value.Index),
-					EnableRegister = externalConfig.Value.EIMSK,
-					EnableMask = (byte)(1 << externalConfig.Value.Index),
-				};
+				return new AvrInterruptConfig (
+					address: externalConfig.Interrupt,
+					flagRegister: externalConfig.EIFR,
+					flagMask: (byte)(1 << externalConfig.Index),
+					enableRegister: externalConfig.EIMSK,
+					enableMask: (byte)(1 << externalConfig.Index)
+				);
 			}
 			return null;
 		}).ToList ();
@@ -216,22 +216,22 @@ public class AvrIoPort
 			AttachInterruptHook (eicrx);
 		}
 		
-		var eimsk = portConfig.ExternalInterrupts.FirstOrDefault (item => item != null && item.Value.EIMSK != 0)?.EIMSK ?? 0;
+		var eimsk = portConfig.ExternalInterrupts.FirstOrDefault (item => item != null && item.EIMSK != 0)?.EIMSK ?? 0;
 		AttachInterruptHook (eimsk, "mask");
 		
-		var eifr = portConfig.ExternalInterrupts.FirstOrDefault (item => item != null && item.Value.EIFR != 0)?.EIFR ?? 0;
+		var eifr = portConfig.ExternalInterrupts.FirstOrDefault (item => item != null && item.EIFR != 0)?.EIFR ?? 0;
 		AttachInterruptHook (eifr, "flag");
 		
-		_pcint = portConfig.PinChange != null ? new AvrInterruptConfig {
-			Address = portConfig.PinChange.Value.PinChangeInterrupt,
-			FlagRegister = portConfig.PinChange.Value.PCIFR,
-			FlagMask = 1 << portConfig.PinChange.Value.PCIE,
-			EnableRegister = portConfig.PinChange.Value.PCICR,
-			EnableMask = 1 << portConfig.PinChange.Value.PCIE,
-		} : null;
+		_pcint = portConfig.PinChange != null ? new AvrInterruptConfig (
+			address: portConfig.PinChange.PinChangeInterrupt,
+			flagRegister: portConfig.PinChange.PCIFR,
+			flagMask: 1 << portConfig.PinChange.PCIE,
+			enableRegister: portConfig.PinChange.PCICR,
+			enableMask: 1 << portConfig.PinChange.PCIE
+		) : null;
 		
 		if (portConfig.PinChange != null) {
-			var pcifr = portConfig.PinChange.Value.PCIFR;
+			var pcifr = portConfig.PinChange.PCIFR;
 			_cpu.WriteHooks[pcifr] = (value, _, _, _) => {
 				foreach (var gpio in _cpu.GpioPorts) {
 					var pcint = gpio._pcint;
@@ -242,7 +242,7 @@ public class AvrIoPort
 				return true;
 			};
 			
-			var pcmsk = portConfig.PinChange.Value.PCMSK;
+			var pcmsk = portConfig.PinChange.PCMSK;
 			_cpu.WriteHooks[pcmsk] = (value, _, _, _) => {
 				_cpu.Data[pcmsk] = value;
 				foreach (var gpio in _cpu.GpioPorts) {
@@ -353,17 +353,19 @@ public class AvrIoPort
 		var externalConfig =_portConfig.ExternalInterrupts.Length == 0 ? null : _portConfig.ExternalInterrupts[index];
 		var external = _externalInts.Count == 0 ? null : _externalInts[index];
 		if (external != null && externalConfig != null) {
-			var eimsk = externalConfig.Value.EIMSK;
-			var eicr = externalConfig.Value.EICR;
-			var iscOffset = externalConfig.Value.IscOffset;
-			if ((_cpu.Data[eimsk] & (1 << externalConfig.Value.Index)) != 0) {
+			var eimsk = externalConfig.EIMSK;
+			var eicr = externalConfig.EICR;
+			var iscOffset = externalConfig.IscOffset;
+			if ((_cpu.Data[eimsk] & (1 << externalConfig.Index)) != 0) {
 				var configuration = (InterruptMode)((_cpu.Data[eicr] >> iscOffset) & 0x3);
 				var generateInterrupt = false;
-				external.Constant = false;
+				var shouldBeConstant = false;
+				// external.Constant = false;
 				switch (configuration) {
 					case InterruptMode.LowLevel:
 						generateInterrupt = !risingEdge;
-						external.Constant = true;
+						shouldBeConstant = true;
+						// external.Constant = true;
 						break;
 					case InterruptMode.Change:
 						generateInterrupt = true;
@@ -375,6 +377,10 @@ public class AvrIoPort
 						generateInterrupt = risingEdge;
 						break;
 				}
+				if (shouldBeConstant && !external.Constant) {
+					// The AvrInterruptConfig is immutable, so we need to create a new one
+					external = external.MakeConstant ();
+				}
 				if (generateInterrupt) {
 					_cpu.SetInterruptFlag (external);
 				} else if (external.Constant) {
@@ -383,9 +389,9 @@ public class AvrIoPort
 			}
 		}
 		
-		if (_pcint != null && _portConfig.PinChange != null && (_portConfig.PinChange.Value.Mask & (1 << index)) != 0) {
-			var pcmsk = _portConfig.PinChange.Value.PCMSK;
-			if ((_cpu.Data[pcmsk] & (1 << (index + _portConfig.PinChange.Value.Offset))) != 0) {
+		if (_pcint != null && _portConfig.PinChange != null && (_portConfig.PinChange.Mask & (1 << index)) != 0) {
+			var pcmsk = _portConfig.PinChange.PCMSK;
+			if ((_cpu.Data[pcmsk] & (1 << (index + _portConfig.PinChange.Offset))) != 0) {
 				_cpu.SetInterruptFlag (_pcint);
 			}
 		}
@@ -420,23 +426,23 @@ public class AvrIoPort
 			var external = _portConfig.ExternalInterrupts?[pin];
 			if (external == null) continue;
 			var pinValue = (_lastPin & (1 << pin)) != 0;
-			var eifr = external.Value.EIFR;
-			var eimsk = external.Value.EIMSK;
-			var index = external.Value.Index;
-			var eicr = external.Value.EICR;
-			var iscOffset = external.Value.IscOffset;
-			var interrupt = external.Value.Interrupt;
+			var eifr = external.EIFR;
+			var eimsk = external.EIMSK;
+			var index = external.Index;
+			var eicr = external.EICR;
+			var iscOffset = external.IscOffset;
+			var interrupt = external.Interrupt;
 			if ((_cpu.Data[eimsk] & (1 << index)) == 0 || pinValue) continue;
 			var configuration = (byte)((_cpu.Data[eicr] >> iscOffset) & 0x3);
 			if (configuration == (byte)InterruptMode.LowLevel) {
-				_cpu.QueueInterrupt (new AvrInterruptConfig {
-					Address = interrupt,
-					FlagRegister = eifr,
-					FlagMask = (byte)(1 << index),
-					EnableRegister = eimsk,
-					EnableMask = (byte)(1 << index),
-					Constant = true,
-				});
+				_cpu.QueueInterrupt (new AvrInterruptConfig (
+					address: interrupt,
+					flagRegister: eifr,
+					flagMask: (byte)(1 << index),
+					enableRegister: eimsk,
+					enableMask: (byte)(1 << index),
+					constant: true
+				));
 			}
 		}
 	}
@@ -454,37 +460,37 @@ public class AvrIoPort
 	}
 }
 
-public struct AvrExternalInterrupt
+public class AvrExternalInterrupt (byte eicr, byte eimsk, byte eifr, byte iscOffset, byte index, byte interrupt)
 {
-	public byte EICR;
-	public byte EIMSK;
-	public byte EIFR;
+	public readonly byte EICR = eicr;
+	public readonly byte EIMSK = eimsk;
+	public readonly byte EIFR = eifr;
 	
-	public byte IscOffset;
-	public byte Index;
+	public readonly byte IscOffset = iscOffset;
+	public readonly byte Index = index;
 
-	public byte Interrupt;
+	public readonly byte Interrupt = interrupt;
 }
 
-public struct AvrPinChangeInterrupt
+public class AvrPinChangeInterrupt (byte pcie, byte pcicr, byte pcifr, byte pcmsk, byte pinChangeInterrupt, byte mask = 0xff, byte offset = 0)
 {
-	public byte PCIE;
-	public byte PCICR;
-	public byte PCIFR;
-	public byte PCMSK;
-	public byte PinChangeInterrupt;
-	public byte Mask;
-	public byte Offset;
+	public readonly byte PCIE = pcie;
+	public readonly byte PCICR = pcicr;
+	public readonly byte PCIFR = pcifr;
+	public readonly byte PCMSK = pcmsk;
+	public readonly byte PinChangeInterrupt = pinChangeInterrupt;
+	public readonly byte Mask = mask;
+	public readonly byte Offset = offset;
 }
 
-public struct AvrPortConfig
+public class AvrPortConfig (ushort pin, ushort ddr, ushort port, AvrPinChangeInterrupt? pinChange = null, AvrExternalInterrupt?[] externalInterrupts = null)
 {
-	public ushort PIN;
-	public ushort DDR;
-	public ushort PORT;
+	public readonly ushort PIN = pin;
+	public readonly ushort DDR = ddr;
+	public readonly ushort PORT = port;
 	
-	public AvrPinChangeInterrupt? PinChange;
-	public AvrExternalInterrupt?[] ExternalInterrupts;
+	public readonly AvrPinChangeInterrupt? PinChange = pinChange;
+	public readonly AvrExternalInterrupt?[] ExternalInterrupts = externalInterrupts;
 }
 
 public enum PinState

@@ -1,5 +1,7 @@
 #nullable enable
-
+using CpuMemoryReadHooks = System.Collections.Generic.Dictionary<ushort, System.Func<ushort, byte>?>;
+using CpuMemoryWriteHooks = System.Collections.Generic.Dictionary<ushort, System.Func<byte, byte, ushort, byte, bool>?>;
+using System.Runtime.CompilerServices;
 using AVR8Sharp.Peripherals;
 namespace AVR8Sharp.Cpu;
 
@@ -106,7 +108,6 @@ public class Cpu
 			ProgBytes[i * 2 + 1] = (byte)(program[i] >> 8);
 		}
 	}
-	
 	public void LoadProgram (byte[] program)
 	{
 		Array.Copy (program, ProgBytes, program.Length);
@@ -128,18 +129,19 @@ public class Cpu
 		ProgBytes[address * 2 + 1] = (byte)(value >> 8);
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public byte ReadData (ushort address)
 	{
-		var hook = ReadHooks[address];
-		if (address > 32 && hook != null) 
-			return hook(address);
+		if (address > 32 && ReadHooks.TryGetValue (address, out var hook) && hook != null) {
+			return hook.Invoke(address);
+		}
 		return Data[address];
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void WriteData (ushort address, byte value, byte mask = 0xff)
 	{
-		var hook = WriteHooks[address];
-		if (hook != null) {
+		if (WriteHooks.TryGetValue (address, out var hook) && hook != null) {
 			if (hook(value, Data[address], address, mask)) {
 				return;
 			}
@@ -147,6 +149,7 @@ public class Cpu
 		Data[address] = value;
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void SetInterruptFlag (AvrInterruptConfig interrupt)
 	{
 		if (interrupt.InverseFlag) {
@@ -160,6 +163,7 @@ public class Cpu
 		}
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void UpdateInterruptEnable (AvrInterruptConfig interrupt, byte registerValue)
 	{
 		if ((registerValue & interrupt.EnableMask) != 0) {
@@ -172,6 +176,7 @@ public class Cpu
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void QueueInterrupt (AvrInterruptConfig interrupt)
 	{
 		_pendingInterrupts[interrupt.Address] = interrupt;
@@ -183,6 +188,7 @@ public class Cpu
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void ClearInterrupt (AvrInterruptConfig interrupt, bool clearFlag = true)
 	{
 		if (clearFlag) {
@@ -201,6 +207,7 @@ public class Cpu
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void ClearInterruptByFlag (AvrInterruptConfig interrupt, byte registerValue)
 	{
 		if ((registerValue & interrupt.FlagMask) == 0) return;
@@ -208,6 +215,7 @@ public class Cpu
 		ClearInterrupt (interrupt);
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public Action AddClockEvent (Action callback, int cycles)
 	{
 		cycles = Cycles + Math.Max (1, cycles);
@@ -230,6 +238,7 @@ public class Cpu
 		return callback;
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public bool UpdateClockEvent (Action callback, int cycles)
 	{
 		if (ClearClockEvent (callback)) {
@@ -239,6 +248,7 @@ public class Cpu
 		return false;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public bool ClearClockEvent (Action callback)
 	{
 		var clockEvent = _nextClockEvent;
@@ -264,6 +274,7 @@ public class Cpu
 		return false;
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void Tick ()
 	{
 		if (_nextClockEvent != null && _nextClockEvent.Cycles <= Cycles) {
@@ -284,49 +295,21 @@ public class Cpu
 	}
 }
 
-public class CpuMemoryReadHooks
+public class AvrInterruptConfig (byte address, ushort enableRegister, int enableMask, ushort flagRegister, int flagMask, bool constant = false, bool inverseFlag = false)
 {
-	private readonly Dictionary<ushort, Func<ushort, byte>> _hooks = [];
-	public Func<ushort, byte>? this [ushort address] {
-		get {
-			return _hooks.GetValueOrDefault (address);
-		}
-		set {
-			if (value != null) {
-				_hooks[address] = value;
-			} else {
-				_hooks.Remove (address);
-			}
-		}
+	public readonly byte Address = address;
+	public readonly ushort EnableRegister = enableRegister;
+	public readonly int EnableMask = enableMask;
+	public readonly ushort FlagRegister = flagRegister;
+	public readonly int FlagMask = flagMask;
+	public readonly bool Constant = constant;
+	public readonly bool InverseFlag = inverseFlag;
+	
+	public AvrInterruptConfig MakeConstant ()
+	{
+		return new AvrInterruptConfig (Address, EnableRegister, EnableMask, FlagRegister, FlagMask, true, InverseFlag);
 	}
-}
 
-public class CpuMemoryWriteHooks
-{
-	private readonly Dictionary<ushort, Func<byte, byte, ushort, byte, bool>> _hooks = [];
-	public Func<byte, byte, ushort, byte, bool>? this [ushort address] {
-		get {
-			return _hooks.GetValueOrDefault (address);
-		}
-		set {
-			if (value != null) {
-				_hooks[address] = value;
-			} else {
-				_hooks.Remove (address);
-			}
-		}
-	}
-}
-
-public class AvrInterruptConfig
-{
-	public byte Address;
-	public ushort EnableRegister;
-	public int EnableMask;
-	public ushort FlagRegister;
-	public int FlagMask;
-	public bool Constant;
-	public bool InverseFlag;
 }
 
 public class AvrClockEventEntry

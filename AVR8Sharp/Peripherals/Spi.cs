@@ -88,13 +88,13 @@ public class AvrSpi
 		_config = config;
 		_freqHz = freqHz;
 		
-		_spi = new AvrInterruptConfig {
-			Address = _config.SpiInterrupt,
-			FlagRegister = _config.SPSR,
-			FlagMask = SPSR_SPIF,
-			EnableRegister = _config.SPCR,
-			EnableMask = SPCR_SPIE
-		};
+		_spi = new AvrInterruptConfig (
+			address: _config.SpiInterrupt,
+			flagRegister: _config.SPSR,
+			flagMask: SPSR_SPIF,
+			enableRegister: _config.SPCR,
+			enableMask: SPCR_SPIE
+		);
 		
 		OnByte = value => {
 			var valueIn = OnTransfer(value);
@@ -142,7 +142,7 @@ public class AvrSpi
 	}
 }
 
-public struct SpiConfig
+public class SpiConfig
 {
 	public byte SpiInterrupt;
 	

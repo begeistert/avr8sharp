@@ -60,13 +60,13 @@ public class Watchdog
 		_cpu = cpu;
 		_clock = clock;
 		
-		_watchdog = new AvrInterruptConfig {
-			Address = config.WatchdogInterrupt,
-			FlagRegister = config.WDTCSR,
-			FlagMask = WDTCSR_WDIF,
-			EnableRegister = config.WDTCSR,
-			EnableMask = WDTCSR_WDIE
-		};
+		_watchdog = new AvrInterruptConfig (
+			address: config.WatchdogInterrupt,
+			flagRegister: config.WDTCSR,
+			flagMask: WDTCSR_WDIF,
+			enableRegister: config.WDTCSR,
+			enableMask: WDTCSR_WDIE
+		);
 
 		_cpu.OnWatchdogReset = () => {
 			ResetWatchdog ();
@@ -132,7 +132,7 @@ public class Watchdog
 	}
 }
 
-public struct WatchdogConfig
+public class WatchdogConfig
 {
 	public byte WatchdogInterrupt;
 	

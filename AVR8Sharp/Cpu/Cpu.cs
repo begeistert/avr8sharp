@@ -63,7 +63,7 @@ public class Cpu
 		Buffer.BlockCopy (program.ToArray (), 0, ProgBytes, 0, program.Length * 2);
 		
 		// Whether the program counter (PC) can address 22 bits (the default is 16)
-		PC22Bits = program.Length > 0x20000;
+		PC22Bits = (program.Length * 2) > 0x20000;
 		
 		// Reset the CPU
 		Reset ();
@@ -96,6 +96,36 @@ public class Cpu
 		}
 		_nextInterrupt = -1;
 		_nextClockEvent = null;
+	}
+	
+	public void LoadProgram (ushort[] program)
+	{
+		Array.Copy (program, ProgramMemory, program.Length);
+		for (var i = 0; i < program.Length; i++) {
+			ProgBytes[i * 2] = (byte)(program[i] & 0xff);
+			ProgBytes[i * 2 + 1] = (byte)(program[i] >> 8);
+		}
+	}
+	
+	public void LoadProgram (byte[] program)
+	{
+		Array.Copy (program, ProgBytes, program.Length);
+		for (var i = 0; i < program.Length / 2; i++) {
+			ProgramMemory[i] = (ushort)(program[i * 2] | program[i * 2 + 1] << 8);
+		}
+	}
+	
+	public void SetProgramByte (int address, byte value)
+	{
+		ProgBytes[address] = value;
+		ProgramMemory[address / 2] = (ushort)(ProgBytes[address] | ProgBytes[address + 1] << 8);
+	}
+	
+	public void SetProgramWord (int address, ushort value)
+	{
+		ProgramMemory[address] = value;
+		ProgBytes[address * 2] = (byte)(value & 0xff);
+		ProgBytes[address * 2 + 1] = (byte)(value >> 8);
 	}
 
 	public byte ReadData (ushort address)

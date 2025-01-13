@@ -123,7 +123,7 @@ void loop() {
 		{
 			var cyclesToRun = Cpu.Cycles + workUnitCycles;
 			while (Cpu.Cycles < cyclesToRun) {
-				Instruction.AvrInstruction (Cpu);
+				AVR8Sharp.Cpu.Instruction.AvrInstruction (Cpu);
 				Cpu.Tick ();
 			}
 

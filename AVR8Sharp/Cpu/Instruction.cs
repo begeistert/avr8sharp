@@ -433,9 +433,11 @@ public static class Instruction
 			cpu.Data[d2] = cpu.Data[r2];
 			cpu.Data[d2 + 1] = cpu.Data[r2 + 1];
 		} else if ((opcode & 0xfc00) == 0x9c00) {
+			/* MUL, 1001 11rd dddd rrrr */
 			var R = cpu.Data[(opcode & 0x1f0) >> 4] * cpu.Data[(opcode & 0xf) | ((opcode & 0x200) >> 5)];
 			cpu.DataView.SetUint16(0, (ushort)R, true);
 			cpu.Data[95] = (byte)(cpu.Data[95] & 0xfc | ((0xffff & R) != 0 ? 0 : 2) | ((0x8000 & R) != 0 ? 1 : 0));
+			cpu.Cycles++;
 		} else if ((opcode & 0xff00) == 0x200) {
 			/* MULS, 0000 0010 dddd rrrr */
 			var R = cpu.DataView.GetInt8(((opcode & 0xf0) >> 4) + 16) * cpu.DataView.GetInt8((opcode & 0xf) + 16);
@@ -459,7 +461,7 @@ public static class Instruction
 			sreg |= (128 & R) != 0 ? 4 : 0;
 			sreg |= 128 == R ? 8 : 0;
 			sreg |= (((sreg >> 2) & 1) ^ ((sreg >> 3) & 1)) != 0 ? 0x10 : 0;
-			sreg |= R == 0 ? 1 : 0;
+			sreg |= R == 0 ? 0 : 1;
 			sreg |= (1 & (R | value)) != 0 ? 0x20 : 0;
 			cpu.Data[95] = (byte)sreg;
 		} else if (opcode == 0) {

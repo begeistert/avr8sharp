@@ -3,7 +3,7 @@ using OpCodeHandler = System.Func<string, string, int, System.Collections.Generi
 
 namespace AVR8Sharp.Utils;
 
-public partial class Assembler
+public partial class AvrAssembler
 {
 	// Create an alias for the dictionary type
 	static Dictionary<string, OpCodeHandler> OpTable = new Dictionary<string, OpCodeHandler>  {
@@ -383,8 +383,8 @@ public partial class Assembler
 			return ZeroPad (r);
 		}},
 		{ "OUT", (a, b, _, _) => {
-			var r = 0xb800 | DestRIndex(a);
-			var A = ConstValue(b, 0, 63);
+			var r = 0xb800 | DestRIndex(b);
+			var A = ConstValue(a, 0, 63);
 			r |= ((A & 0x30) << 5) | (A & 0x0f);
 			return ZeroPad (r);
 		}},
@@ -523,8 +523,8 @@ public partial class Assembler
 			return ZeroPad (r);
 		}},
 		{ "STS", (a, b, _, _) => {
-			var k = ConstValue(b, 0, 65535);
-			var r = 0x9200 | DestRIndex(a);
+			var k = ConstValue(a, 0, 65535);
+			var r = 0x9200 | DestRIndex(b);
 			return new KeyValuePair<string, string>(ZeroPad(r), ZeroPad(k));
 		}},
 		{ "SUB", (a, b, _, _) => {
@@ -559,6 +559,10 @@ public partial class Assembler
 	private LabelTable _labels = new LabelTable();
 	private List<string> _errors = new List<string>();
 	private List<LineTablePassOne> _lines = new List<LineTablePassOne>();
+	
+	public LabelTable Labels => _labels;
+	public List<string> Errors => _errors;
+	public List<LineTablePassOne> Lines => _lines;
 	
 	public byte[] Assemble (string input)
 	{
@@ -600,7 +604,7 @@ public partial class Assembler
 			if (match.Success) {
 				_labels[match.Groups[1].Value] = byteOffset;
 				// Remove the label from the line
-				res = res.Substring(match.Length);
+				res = res[match.Length..].Trim();
 			}
 			if (string.IsNullOrEmpty(res)) {
 				continue;
@@ -692,6 +696,10 @@ public partial class Assembler
 	private byte [] PassTwo ()
 	{
 		_errors.Clear();
+		
+		if (_lines.Count == 0) 
+			return [];
+		
 		var lastElement = _lines.Last();
 		var byteSize = lastElement.BytesOffset + ElementSize(ref lastElement);
 		var resultTable = new byte[byteSize];
@@ -719,14 +727,17 @@ public partial class Assembler
 						resultTable[lt.BytesOffset] = Convert.ToByte(s.Substring(2, 2), 16);
 						break;
 					case KeyValuePair<string, string> p:
-						var bytes2 = new byte[4];
-						var low = Convert.ToByte(p.Key, 16);
-						var high = Convert.ToByte(p.Value, 16);
-						bytes2[0] = (byte)(low & 0xff);
-						bytes2[1] = (byte)(low >> 8);
-						bytes2[2] = (byte)(high & 0xff);
-						bytes2[3] = (byte)(high >> 8);
-						Array.Copy(bytes2, 0, resultTable, lt.BytesOffset, bytes2.Length);
+						var bi = lt.BytesOffset;
+						string value;
+						for (var j = 0; j < 2; j++, bi += 2) {
+							if (j == 0) {
+								value = p.Key;
+							} else {
+								value = p.Value;
+							}
+							resultTable[bi + 1] = Convert.ToByte(value[..2], 16);
+							resultTable[bi] = Convert.ToByte(value.Substring(2, 2), 16);
+						}
 						break;
 					default:
 						throw new Exception("Invalid byte type");
@@ -756,6 +767,9 @@ public partial class Assembler
 				return 4;
 			}
 		}
+		if (bytes is KeyValuePair<string, string> p2) {
+			return 4;
+		}
 		return 2;
 	}
 	
@@ -773,7 +787,7 @@ public partial class Assembler
 		
 		var dest = int.Parse(match.Groups[1].Value);
 		if (dest < min || dest > max) {
-			throw new Exception($"Register out of range: {r}");
+			throw new Exception($"Rd out of range: {min}<>{max}");
 		}
 		return (dest & 0x1f) << 4;
 	}
@@ -803,7 +817,16 @@ public partial class Assembler
 	/// </summary>
 	private static int ConstValue (string value, int min = 0, int max = 255)
 	{
-		var d = int.Parse(value);
+		int d;
+		if (value.Length > 1 && value[0] == '0' && value[1] == 'x') {
+			d = int.Parse(value[2..], System.Globalization.NumberStyles.HexNumber);
+		}
+		else if (value.Length > 1 && value[0] == '0' && value[1] == 'b') {
+			d = Convert.ToInt32(value[2..], 2);
+		}
+		else
+			d = int.Parse(value);
+		
 		if (d < min || d > max) {
 			throw new Exception($"[Ks] out of range: {min}<{value}<{max}");
 		}
@@ -850,11 +873,17 @@ public partial class Assembler
 	private static int ConstOrLabel (object value, Dictionary<string, int> labels, int offset = 0)
 	{
 		if (value is string c) {
-			if (int.TryParse(c, out var d)) {
-				return d;
-			}
 			if (labels.ContainsKey(c)) {
 				return labels[c] - offset;
+			}
+			if (c.Length > 1 && c[0] == '0' && c[1] == 'x') {
+				return int.Parse(c[2..], System.Globalization.NumberStyles.HexNumber);
+			}
+			if (c.Length > 1 && c[0] == '0' && c[1] == 'b') {
+				return Convert.ToInt32(c[2..], 2);
+			}
+			if (int.TryParse(c, out var d)) {
+				return d;
 			}
 			return int.MinValue;
 		}
@@ -872,9 +901,9 @@ public partial class Assembler
 		} else {
 			r = (int)rIn;
 		}
+		var rStr = r.ToString("x");
 		var @base = new string('0', len);
-		var t = @base.Substring (0, len - r.ToString ().Length) + r;
-		
+		var t = @base.Substring (0, len - rStr.Length) + rStr;
 		return t;
 	}
 

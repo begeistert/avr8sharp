@@ -341,7 +341,8 @@ public class AvrIoPort
 			if (((newPin & (1 << index)) != (_lastPin & (1 << index)))) {
 				var value = (newPin & (1 << index)) != 0;
 				ToggleInterrupt ((byte)index, value);
-				ExternalClockListeners?[index]?.Invoke (value);
+				if (ExternalClockListeners.TryGetValue (index, out var a))
+                    a?.Invoke (value);
 			}
 		}
 		_lastPin = newPin;
@@ -349,8 +350,8 @@ public class AvrIoPort
 
 	private void ToggleInterrupt (byte index, bool risingEdge)
 	{
-		var externalConfig = _portConfig.ExternalInterrupts?[index];
-		var external = _externalInts[index];
+		var externalConfig =_portConfig.ExternalInterrupts.Length == 0 ? null : _portConfig.ExternalInterrupts[index];
+		var external = _externalInts.Count == 0 ? null : _externalInts[index];
 		if (external != null && externalConfig != null) {
 			var eimsk = externalConfig.Value.EIMSK;
 			var eicr = externalConfig.Value.EICR;

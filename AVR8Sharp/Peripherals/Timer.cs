@@ -181,6 +181,8 @@ public class AvrTimer
 		new WgmConfig { Mode = TimerMode.FastPWM, TimerTopValue = TopOCRA, OCRUpdateMode = OCRUpdateMode.Bottom, TOVUpdateMode = TOVUpdateMode.Top, Flags = OCToggle, },
 	];
 	
+	private static Action? CountParameterLess;
+	
 	private Cpu.Cpu _cpu;
 	private AvrTimerConfig _config;
 
@@ -281,6 +283,10 @@ public class AvrTimer
 		
 		_max =config.Bits == 16 ? 0xffff : 0xff;
 		_hasOcrC = config.OCRC != 0;
+
+		if (CountParameterLess == null) {
+			CountParameterLess = () => Count ();
+		}
 		
 		_ovf = new AvrInterruptConfig {
 			Address = config.OverflowInterrupt,
@@ -315,6 +321,136 @@ public class AvrTimer
 		};
 
 		UpdateWgmConfig ();
+		
+		_cpu.ReadHooks[config.TCNT] = addr => {
+			Count (false);
+			if (config.Bits == 16) {
+				_cpu.Data[addr + 1] = (byte)(_tcnt >> 8);
+			}
+			return _cpu.Data[addr] = (byte)(_tcnt & 0xff);
+		};
+		
+		_cpu.WriteHooks[config.TCNT] = (value, _, _, _) => {
+			_tcntNext = (ushort)((_highByteTemp << 8) | value);
+			_countingUp = true;
+			_tcntUpdated = true;
+			_cpu.UpdateClockEvent (() => Count (), 0);
+			if (_divider != 0) {
+				TimerUpdated (_tcntNext, _tcntNext);
+			}
+			return true;
+		};
+		
+		_cpu.WriteHooks[config.OCRA] = (value, _, _, _) => {
+			_nextOcrA = (ushort)((_highByteTemp << 8) | value);
+			if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
+				_ocrA = _nextOcrA;
+			}
+			return true;
+		};
+		
+		_cpu.WriteHooks[config.OCRB] = (value, _, _, _) => {
+			_nextOcrB = (ushort)((_highByteTemp << 8) | value);
+			if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
+				_ocrB = _nextOcrB;
+			}
+			return true;
+		};
+		
+		if (_hasOcrC) {
+			_cpu.WriteHooks[config.OCRC] = (value, _, _, _) => {
+				_nextOcrC = (ushort)((_highByteTemp << 8) | value);
+				if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
+					_ocrC = _nextOcrC;
+				}
+				return true;
+			};
+		}
+
+		if (_config.Bits == 16) {
+			_cpu.WriteHooks[config.ICR] = (value, _, _, _) => {
+				_icr = (ushort)((_highByteTemp << 8) | value);
+				return false;
+			};
+			
+			Func<byte, byte, ushort, byte, bool> updateTempRegister = (value, _, _, _) => {
+				_highByteTemp = value;
+				return false;
+			};
+			Func<byte, byte, ushort, byte, bool> updateOCRHighRegister = (value, old, addr, _) => {
+				_highByteTemp = (byte)(value & (OcrMask >> 8));
+				_cpu.Data[addr] = _highByteTemp;
+				return true;
+			};
+			
+			_cpu.WriteHooks[(ushort)(config.TCNT + 1)] = updateTempRegister;
+			_cpu.WriteHooks[(ushort)(config.OCRA + 1)] = updateOCRHighRegister;
+			_cpu.WriteHooks[(ushort)(config.OCRB + 1)] = updateOCRHighRegister;
+			if (_hasOcrC) {
+				_cpu.WriteHooks[(ushort)(config.OCRC + 1)] = updateOCRHighRegister;
+			}
+			_cpu.WriteHooks[(ushort)(config.ICR + 1)] = updateOCRHighRegister;
+		}
+		
+		_cpu.WriteHooks[config.TCCRA] = (value, _, _, _) => {
+			_cpu.Data[config.TCCRA] = value;
+			UpdateWgmConfig ();
+			return true;
+		};
+		
+		_cpu.WriteHooks[config.TCCRB] = (value, _, _, _) => {
+			if (_config.TCCRC == 0) {
+				CheckForceCompare(value);
+				value &= ~(FOCA | FOCB) & 0xff;
+			}
+			_cpu.Data[_config.TCCRB] = value;
+			_updateDivider = true;
+			_cpu.ClearClockEvent (CountParameterLess);
+			_cpu.AddClockEvent (CountParameterLess, 0);
+			UpdateWgmConfig ();
+			return true;
+		};
+
+		if (_config.TCCRC != 0) {
+			_cpu.WriteHooks[config.TCCRC] = (value, _, _, _) => {
+				CheckForceCompare(value);
+				return false;
+			};
+		}
+		
+		_cpu.WriteHooks[config.TIFR] = (value, _, _, _) => {
+			_cpu.Data[config.TIFR] = value;
+			var boolValue = value != 0;
+			_cpu.ClearInterrupt (_ovf, boolValue);
+			_cpu.ClearInterrupt (_ocfa, boolValue);
+			_cpu.ClearInterrupt (_ocfb, boolValue);
+			return true;
+		};
+		
+		_cpu.WriteHooks[config.TIMSK] = (value, _, _, _) => {
+			_cpu.UpdateInterruptEnable (_ovf, value);
+			_cpu.UpdateInterruptEnable (_ocfa, value);
+			_cpu.UpdateInterruptEnable (_ocfb, value);
+			return false;
+		};
+	}
+
+	public void Reset ()
+	{
+		_divider = 0;
+		_lastCycle = 0;
+		_ocrA = 0;
+		_nextOcrA = 0;
+		_ocrB = 0;
+		_nextOcrB = 0;
+		_ocrC = 0;
+		_nextOcrC = 0;
+		_icr = 0;
+		_tcnt = 0;
+		_tcntNext = 0;
+		_tcntUpdated = false;
+		_countingUp = false;
+		_updateDivider = true;
 	}
 
 	private void UpdateWgmConfig ()
@@ -429,7 +565,7 @@ public class AvrTimer
 				_externalClockPort.ExternalClockListeners[_config.ExternalClockPin] = null;
 			}
 			if (newDivider != 0) {
-				_cpu.AddClockEvent (() => Count(), _lastCycle + newDivider - _cpu.Cycles);
+				_cpu.AddClockEvent (CountParameterLess, _lastCycle + newDivider - _cpu.Cycles);
 			} else if (_externalClockPort != null && (CS == (int)ExternalClockMode.FallingEdge || CS == (int)ExternalClockMode.RisingEdge)) {
 				_externalClockPort.ExternalClockListeners[_config.ExternalClockPin] = ExternalClockCallback;
 				_externalClockRisingEdge = CS == (int)ExternalClockMode.RisingEdge;
@@ -437,7 +573,7 @@ public class AvrTimer
 		}
 		
 		if (reschedule && _divider != 0) {
-			_cpu.AddClockEvent (() => Count(), _lastCycle + _divider - _cpu.Cycles);
+			_cpu.AddClockEvent (CountParameterLess, _lastCycle + _divider - _cpu.Cycles);
 		}
 	}
 	

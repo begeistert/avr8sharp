@@ -48,7 +48,7 @@ public class Instruction
 	const int SREG_V = 0b00001000;
 	const int SREG_S = 0b00010000;
 	const int SREG_H = 0b00100000;
-	const int SREG_I = 0b01000000;
+	const int SREG_I = 0b10000000;
 	
 	private AVR8Sharp.Cpu.Cpu cpu;
 	
@@ -511,7 +511,7 @@ public class Instruction
 		});
 	}
 	
-	[Test (Description = "Should clamp RAMPZ when executing `ELPM r6, Z+` instruction")]
+	[Test (Description = "Should clamp RAMPZ when executing ELPM r6, Z+ instruction")]
 	public void ELPM_Register_PostIncrement_RAMPZ ()
 	{
 		cpu = new AVR8Sharp.Cpu.Cpu(new ushort[0x20000]);
@@ -547,7 +547,7 @@ public class Instruction
 		});
 	}
 	
-	[Test (Description = "Should push 3-byte return address when executing `ICALL` instruction on device with >128k flash")]
+	[Test (Description = "Should push 3-byte return address when executing ICALL instruction on device with >128k flash")]
 	public void ICALL_3Byte ()
 	{
 		cpu = new AVR8Sharp.Cpu.Cpu(new ushort[0x20000]);
@@ -1161,8 +1161,604 @@ public class Instruction
 			Assert.That (cpu.Cycles, Is.EqualTo (1));
 		});
 	}
+
+	[Test (Description = "Should execute OUT 0x3f, r1 instruction")]
+	public void OUT ()
+	{
+		LoadProgram ([
+			"out 0x3f, r1",
+		]);
+		cpu.Data[r1] = 0x5a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[0x5f], Is.EqualTo (0x5a));
+		});
+	}
 	
+	[Test (Description = "Should execute POP r26 instruction")]
+	public void POP ()
+	{
+		LoadProgram ([
+			"pop r26",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0xff;
+		cpu.Data[0x100] = 0x1a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[X], Is.EqualTo (0x1a));
+			Assert.That (cpu.DataView.GetUint16 (SP, true), Is.EqualTo (0x100));
+		});
+	}
 	
+	[Test (Description = "Should execute PUSH r11 instruction")]
+	public void PUSH ()
+	{
+		LoadProgram ([
+			"push r11",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0xff;
+		cpu.Data[r11] = 0x2a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0xff], Is.EqualTo (0x2a));
+			Assert.That (cpu.DataView.GetUint16 (SP, true), Is.EqualTo (0xfe));
+		});
+	}
+	
+	[Test (Description = "Should execute RCALL .+6 instruction")]
+	public void RCALL ()
+	{
+		LoadProgram ([
+			"rcall 6"
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0x80;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (4));
+			Assert.That (cpu.Cycles, Is.EqualTo (3));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0x7e)); // Return address low byte
+			Assert.That (cpu.DataView.GetUint16 (0x80, true), Is.EqualTo (1)); // SP should be decremented 
+		});
+	}
+	
+	[Test (Description = "Should execute RCALL .-4 instruction")]
+	public void RCALL_Negative ()
+	{
+		LoadProgram ([
+			"nop",
+			"rcall -4"
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0x80;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (0));
+			Assert.That (cpu.Cycles, Is.EqualTo (4));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0x7e)); // Return address low byte
+			Assert.That (cpu.DataView.GetUint16 (0x80, true), Is.EqualTo (2)); // SP should be decremented 
+		});
+	}
+	
+	[Test (Description = "Should push 3-byte return address when executing RCALL instruction on device with >128k flash")]
+	public void RCALL_3Byte ()
+	{
+		cpu = new AVR8Sharp.Cpu.Cpu(new ushort[0x20000]);
+		LoadProgram ([
+			"rcall 6"
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0x80;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (4));
+			Assert.That (cpu.Cycles, Is.EqualTo (4));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0x7d)); // Return address low byte
+			Assert.That (cpu.DataView.GetUint16 (0x80, true), Is.EqualTo (1)); // SP should be decremented by 3 
+		});
+	}
+	
+	[Test (Description = "Should execute RET instruction")]
+	public void RET ()
+	{
+		LoadProgram ([
+			"ret",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0x90;
+		cpu.Data[0x92] = 16;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (16));
+			Assert.That (cpu.Cycles, Is.EqualTo (4));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0x92));
+		});
+	}
+	
+	[Test (Description = "Should execute `RET` instruction on device with >128k flash")]
+	public void RET_3Byte ()
+	{
+		cpu = new AVR8Sharp.Cpu.Cpu(new ushort[0x20000]);
+		LoadProgram ([
+			"ret",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0x90;
+		cpu.Data[0x91] = 0x1;
+		cpu.Data[0x93] = 0x16;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (0x10016));
+			Assert.That (cpu.Cycles, Is.EqualTo (5));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0x93));
+		});
+	}
+	
+	[Test (Description = "Should execute RETI instruction")]
+	public void RETI ()
+	{
+		LoadProgram ([
+			"reti",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0xc0;
+		cpu.Data[0xc2] = 200;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (200));
+			Assert.That (cpu.Cycles, Is.EqualTo (4));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0xc2));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_I));
+		});
+	}
+	
+	[Test (Description = "Should execute `RETI` instruction on device with >128k flash")]
+	public void RETI_3Byte ()
+	{
+		cpu = new AVR8Sharp.Cpu.Cpu(new ushort[0x20000]);
+		LoadProgram ([
+			"reti",
+		]);
+		cpu.Data[SPH] = 0;
+		cpu.Data[SP] = 0xc0;
+		cpu.Data[0xc1] = 0x1;
+		cpu.Data[0xc3] = 0x30;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (0x10030));
+			Assert.That (cpu.Cycles, Is.EqualTo (5));
+			Assert.That (cpu.Data[SP], Is.EqualTo (0xc3));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_I));
+		});
+	}
+	
+	[Test (Description = "Should execute RJMP 2 instruction")]
+	public void RJMP ()
+	{
+		LoadProgram ([
+			"rjmp 2"
+		]);
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (2));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+		});
+	}
+	
+	[Test (Description = "Should execute ROR r0 instruction")]
+	public void ROR ()
+	{
+		LoadProgram ([
+			"ror r0",
+		]);
+		cpu.Data[r0] = 0x11;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[r0], Is.EqualTo (0x08));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_S | SREG_V | SREG_C));
+		});
+	}
+	
+	[Test (Description = "Should execute SBC r0, r1 instruction when carry is on and result overflows")]
+	public void SBC_Overflow ()
+	{
+		LoadProgram ([
+			"sbc r0, r1",
+		]);
+		cpu.Data[r0] = 0x00;
+		cpu.Data[r1] = 10;
+		cpu.Data[95] = SREG_C;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[r0], Is.EqualTo (245));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_H | SREG_S | SREG_N | SREG_C));
+		});
+	}
+	
+	[Test (Description = "Should execute SBCI r23, 3")]
+	public void SBCI ()
+	{
+		LoadProgram ([
+			"sbci r23, 3",
+		]);
+		cpu.Data[r23] = 3;
+		cpu.Data[SREG] = SREG_I | SREG_C;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_I | SREG_H | SREG_S | SREG_N | SREG_C));
+		});
+	}
+	
+	[Test (Description = "Should execute SBI 0x0c, 5 instruction")]
+	public void SBI ()
+	{
+		LoadProgram ([
+			"sbi 0x0c, 5",
+		]);
+		cpu.Data[0x2c] = 0b00001111;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x2c], Is.EqualTo (0b00101111));
+		});
+	}
+	
+	[Test (Description = "Should execute SBIS 0x0c, 5 when bit is clear")]
+	public void SBIS_Clear ()
+	{
+		LoadProgram ([
+			"sbis 0x0c, 5",
+		]);
+		cpu.Data[0x2c] = 0b00001111;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+		});
+	}
+	
+	[Test (Description = "Should execute SBIS 0x0c, 5 when bit is set")]
+	public void SBIS_Set ()
+	{
+		LoadProgram ([
+			"sbis 0x0c, 5",
+		]);
+		cpu.Data[0x2c] = 0b00101111;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (2));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+		});
+	}
+	
+	[Test (Description = "Should execute SBIS 0x0c, 5 when bit is set and followed by 2-word instruction")]
+	public void SBIS_Set_Two_Words ()
+	{
+		LoadProgram ([
+			"sbis 0x0c, 5",
+			"call 0xb8"
+		]);
+		cpu.Data[0x2c] = 0b00101111;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (3));
+			Assert.That (cpu.Cycles, Is.EqualTo (3));
+		});
+	}
+	
+	[Test (Description = "Should execute ST X, r1 instruction")]
+	public void ST ()
+	{
+		LoadProgram ([
+			"st X, r1",
+		]);
+		cpu.Data[r1] = 0x5a;
+		cpu.Data[X] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x9a], Is.EqualTo (0x5a));
+			Assert.That (cpu.Data[X], Is.EqualTo (0x9a)); // X should not be modified
+		});
+	}
+	
+	[Test (Description = "Should execute ST X+, r1 instruction")]
+	public void ST_PostIncrement ()
+	{
+		LoadProgram ([
+			"st X+, r1",
+		]);
+		cpu.Data[r1] = 0x5a;
+		cpu.Data[X] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x9a], Is.EqualTo (0x5a));
+			Assert.That (cpu.Data[X], Is.EqualTo (0x9b)); // X should be incremented
+		});
+	}
+	
+	[Test (Description = "Should execute ST -X, r17 instruction")]
+	public void ST_PreDecrement ()
+	{
+		LoadProgram ([
+			"st -X, r17",
+		]);
+		cpu.Data[r17] = 0x88;
+		cpu.Data[X] = 0x99;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x98], Is.EqualTo (0x88));
+			Assert.That (cpu.Data[X], Is.EqualTo (0x98)); // X should be decremented
+		});
+	}
+	
+	[Test (Description = "Should execute ST Y, r2 instruction")]
+	public void ST_Y ()
+	{
+		LoadProgram ([
+			"st Y, r2",
+		]);
+		cpu.Data[r2] = 0x5b;
+		cpu.Data[Y] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x9a], Is.EqualTo (0x5b));
+			Assert.That (cpu.Data[Y], Is.EqualTo (0x9a)); // Y should not be modified
+		});
+	}
+	
+	[Test (Description = "Should execute ST Y+, r1 instruction")]
+	public void ST_Y_PostIncrement ()
+	{
+		LoadProgram ([
+			"st Y+, r1",
+		]);
+		cpu.Data[r1] = 0x5a;
+		cpu.Data[Y] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x9a], Is.EqualTo (0x5a));
+			Assert.That (cpu.Data[Y], Is.EqualTo (0x9b)); // Y should be incremented
+		});
+	}
+	
+	[Test (Description = "Should execute ST -Y, r1 instruction")]
+	public void ST_Y_PreDecrement ()
+	{
+		LoadProgram ([
+			"st -Y, r1",
+		]);
+		cpu.Data[r1] = 0x5a;
+		cpu.Data[Y] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x99], Is.EqualTo (0x5a));
+			Assert.That (cpu.Data[Y], Is.EqualTo (0x99)); // Y should be decremented
+		});
+	}
+	
+	[Test (Description = "Should execute STD Y+17, r0 instruction")]
+	public void STD_Y ()
+	{
+		LoadProgram ([
+			"std Y+17, r0",
+		]);
+		cpu.Data[r0] = 0xba;
+		cpu.Data[Y] = 0x9a;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x9a + 17], Is.EqualTo (0xba));
+			Assert.That (cpu.Data[Y], Is.EqualTo (0x9a)); // Y should not be modified
+		});
+	}
+	
+	[Test (Description = "Should execute ST Z, r16 instruction")]
+	public void ST_Z ()
+	{
+		LoadProgram ([
+			"st Z, r16",
+		]);
+		cpu.Data[r16] = 0xdf;
+		cpu.Data[Z] = 0x40;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x40], Is.EqualTo (0xdf));
+			Assert.That (cpu.Data[Z], Is.EqualTo (0x40)); // Z should not be modified
+		});
+	}
+	
+	[Test (Description = "Should execute ST Z+, r0 instruction")]
+	public void ST_Z_PostIncrement ()
+	{
+		LoadProgram ([
+			"st Z+, r0",
+		]);
+		cpu.Data[r0] = 0x55;
+		cpu.DataView.SetUint16 (Z, 0x155, true);
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x155], Is.EqualTo (0x55));
+			Assert.That (cpu.DataView.GetUint16 (Z, true), Is.EqualTo (0x156)); // Z should be incremented
+		});
+	}
+	
+	[Test (Description = "Should execute ST -Z, r16 instruction")]
+	public void ST_Z_PreDecrement ()
+	{
+		LoadProgram ([
+			"st -Z, r16",
+		]);
+		cpu.Data[r16] = 0x5a;
+		cpu.Data[Z] = 0xff;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0xfe], Is.EqualTo (0x5a));
+			Assert.That (cpu.Data[Z], Is.EqualTo (0xfe)); // Z should be decremented
+		});
+	}
+	
+	[Test (Description = "Should execute STD Z+1, r0 instruction")]
+	public void STD_Z ()
+	{
+		LoadProgram ([
+			"std Z+1, r0",
+		]);
+		cpu.Data[r0] = 0xcc;
+		cpu.Data[Z] = 0x50;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x51], Is.EqualTo (0xcc));
+			Assert.That (cpu.Data[Z], Is.EqualTo (0x50)); // Z should not be modified
+		});
+	}
+	
+	[Test (Description = "Should execute STS 0x151, r31 instruction")]
+	public void STS ()
+	{
+		LoadProgram ([
+			"sts 0x151, r31",
+		]);
+		cpu.Data[r31] = 0x80;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (2));
+			Assert.That (cpu.Cycles, Is.EqualTo (2));
+			Assert.That (cpu.Data[0x151], Is.EqualTo (0x80));
+		});
+	}
+	
+	[Test (Description = "Should execute SUB r0, r1 instruction")]
+	public void SUB ()
+	{
+		LoadProgram ([
+			"sub r0, r1",
+		]);
+		cpu.Data[r0] = 0;
+		cpu.Data[r1] = 10;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[r0], Is.EqualTo (246));
+			Assert.That (cpu.Data[SREG], Is.EqualTo (SREG_S | SREG_N | SREG_C));
+		});
+	}
+	
+	[Test (Description = "Should execute SWAP r1 instruction")]
+	public void SWAP ()
+	{
+		LoadProgram ([
+			"swap r1",
+		]);
+		cpu.Data[r1] = 0xa5;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);     
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[r1], Is.EqualTo (0x5a));
+		});
+	}
+	
+	[Test (Description = "Should execute WDR instruction and call `cpu.onWatchdogReset`")]
+	public void WDR ()
+	{
+		LoadProgram ([
+			"wdr",
+		]);
+		cpu.OnWatchdogReset = () => {
+			cpu.Data[0x100] = 0x1;
+		};
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.That (cpu.Data[0x100], Is.EqualTo (0x1));
+	}
+	
+	[Test (Description = "Should execute XCH Z, r21 instruction")]
+	public void XCH ()
+	{
+		LoadProgram ([
+			"xch Z, r21",
+		]);
+		cpu.Data[r21] = 0xa1;
+		cpu.Data[Z] = 0x50;
+		cpu.Data[0x50] = 0xb9;
+		AVR8Sharp.Cpu.Instruction.AvrInstruction (cpu);
+		Assert.Multiple (() =>
+		{
+			Assert.That (cpu.PC, Is.EqualTo (1));
+			Assert.That (cpu.Cycles, Is.EqualTo (1));
+			Assert.That (cpu.Data[r21], Is.EqualTo (0xb9));
+			Assert.That (cpu.Data[0x50], Is.EqualTo (0xa1));
+		});
+	}
 
 	private void LoadProgram (string[] instructions)
 	{

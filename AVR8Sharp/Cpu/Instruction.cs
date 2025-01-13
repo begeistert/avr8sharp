@@ -597,7 +597,7 @@ public static class Instruction
 			/* SBIS, 1001 1011 AAAA Abbb */
 			var value = cpu.ReadData((ushort)(((opcode & 0xf8) >> 3) + 32));
 			if ((value & (1 << (opcode & 7))) != 0) {
-				var nextOpcode = cpu.ProgBytes[cpu.PC + 1];
+				var nextOpcode = cpu.ProgramMemory[cpu.PC + 1];
 				var skipSize = IsTwoWordInstruction(nextOpcode) ? 2 : 1;
 				cpu.PC += (ushort)skipSize;
 				cpu.Cycles += skipSize;

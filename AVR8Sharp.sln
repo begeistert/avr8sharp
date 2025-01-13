@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AVR8Sharp", "AVR8Sharp\AVR8Sharp.csproj", "{57190D49-E276-4F05-863F-127E6196F6A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AVr8SharpTests", "AVr8SharpTests\AVr8SharpTests.csproj", "{21C3F850-5473-49D3-BC02-DAF9D1519B77}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avr8SharpTests", "Avr8SharpTests\Avr8SharpTests.csproj", "{21C3F850-5473-49D3-BC02-DAF9D1519B77}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvrSharpDemo", "AvrSharpDemo\AvrSharpDemo.csproj", "{28D8FAB3-957B-416B-9DBF-6900CEB2488A}"
 EndProject

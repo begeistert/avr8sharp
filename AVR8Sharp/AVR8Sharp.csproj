@@ -13,6 +13,7 @@
         <PackageTags>Arduino;AVR;Simulator</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Version>1.0.0</Version>
     </PropertyGroup>
 
     <ItemGroup>

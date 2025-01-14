@@ -14,6 +14,7 @@
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Version>1.0.0</Version>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,6 +23,7 @@
         <PackagePath></PackagePath>
         <Link>icon.jpg</Link>
       </None>
+      <None Include="..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

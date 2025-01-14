@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using AVR8Sharp.Cpu;
+using AVR8Sharp;
 using AVR8Sharp.Peripherals;
 using Newtonsoft.Json;
 
@@ -17,7 +17,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(""Blink"");
+  Serial.println(""AVR8Sharp is awesome!"");
   digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
   digitalWrite(LED_BUILTIN, LOW);
@@ -30,67 +30,65 @@ void loop() {
 	{
 		_Client = new HttpClient ();
 	}
-	
-	public static void Main()
+
+	public static void Main ()
 	{
+		// Compile the code using the Hexi API
 		var result = Compile (BlinkCode);
 		var hex = result.Hex;
-		var program = new byte[0x8000];
 		var watch = new Stopwatch ();
-		LoadHex (hex, program);
-		#if DEBUG
-		var runner = new ArduinoRunner (ref program, watch: watch);
-		#elif RELEASE
-		var runner = new ArduinoRunner (ref program, 1, watch);
-        #endif
-		var builder = new StringBuilder ();
-		runner.PortB.AddListener ((newVal, prevVal) => {
+		// Create the AVR runner
+		var runner = AvrBuilder.Create ()
+			.SetSpeed (16_000_000)
+			.SetWorkUnitCycles (1_000)
+			.SetHex (hex)
+			.AddGpioPort (AvrIoPort.PortBConfig, out var portB)
+			.AddGpioPort (AvrIoPort.PortCConfig, out _)
+			.AddGpioPort (AvrIoPort.PortDConfig, out _)
+			.AddUsart (AvrUsart.Usart0Config, out var usart)
+			.AddTimer (AvrTimer.Timer0Config, out _)
+			.AddTimer (AvrTimer.Timer1Config, out _)
+			.AddTimer (AvrTimer.Timer2Config, out _)
+			.Build ();
+		// Add a listener to the port B to print the state of pins 4 and 5
+		portB.AddListener ((newVal, prevVal) => {
 			if (prevVal == newVal)
 				return;
-			
-			Console.WriteLine($"Pin 4: {runner.PortB.GetPinState(4)}");
-			Console.WriteLine($"Pin 5: {runner.PortB.GetPinState(5)}");
-			
-			var millis = (runner.Cpu.Cycles / 16_000_000.0) * 1000;
+
+			Console.WriteLine ($"Pin 4: {portB.GetPinState (4)}");
+			Console.WriteLine ($"Pin 5: {portB.GetPinState (5)}");
+
+			var millis = runner.Cpu.Cycles / 16_000_000.0 * 1000;
 			Console.WriteLine ($"CPU Time: {millis} ms");
-			Console.WriteLine($"Time: {watch.Elapsed.TotalMilliseconds} ms");
+			Console.WriteLine ($"Time: {watch.Elapsed.TotalMilliseconds} ms");
 		});
-		runner.Usart.OnByteTransmit = b => {
+		// Add a listener when a byte is transmitted
+		var builder = new StringBuilder ();
+		usart.OnByteTransmit = b => {
 			var c = (char)b;
 			builder.Append (c);
 			if (c != '\n') return;
-			Console.WriteLine ($"Serial Output: {builder.ToString().Trim()}");
+			Console.WriteLine ($"Serial Output: {builder.ToString ().Trim ()}");
 			builder.Clear ();
 			var millis = (runner.Cpu.Cycles / 16_000_000.0) * 1000;
 			Console.WriteLine ($"CPU Time: {millis} ms");
-			Console.WriteLine($"Time: {watch.Elapsed.TotalMilliseconds} ms");
+			Console.WriteLine ($"Time: {watch.Elapsed.TotalMilliseconds} ms");
 		};
-		Console.WriteLine("Running...");
+		Console.WriteLine ("Running...");
 		const int fiveSecs = (int)(5.5 * 16_000_000);
 		watch.Start ();
-		// Sync the cpu wth the real time
+		// Run the program for 5.5 seconds
 		while (runner.Cpu.Cycles < fiveSecs) {
 			runner.Execute ();
 			var millis = (runner.Cpu.Cycles / 16_000_000.0) * 1000;
+			// Sync the real time with the CPU time
 			while (watch.Elapsed.TotalMilliseconds < millis) {
 				// Wait for the real time to catch up
 			}
 		}
 		watch.Stop ();
-		Console.WriteLine(builder.ToString ());
-		Console.WriteLine($"Execution time: {watch.ElapsedMilliseconds} ms");
-	}
-	public static void LoadHex (string source, byte[] target)
-	{
-		foreach (var line in source.Split ('\n')) {
-			if (!string.IsNullOrEmpty (line) && line[0] == ':' && line.Substring (7, 2) == "00") {
-				var bytes = Convert.ToInt32 (line.Substring (1, 2), 16);
-				var addr = Convert.ToInt32 (line.Substring (3, 4), 16);
-				for (var i = 0; i < bytes; i++) {
-					target[addr + i] = Convert.ToByte (line.Substring (9 + i * 2, 2), 16);
-				}
-			}
-		}
+		Console.WriteLine (builder.ToString ());
+		Console.WriteLine ($"Execution time: {watch.ElapsedMilliseconds} ms");
 	}
 
 	public static HexiResult Compile (string source)
@@ -108,64 +106,5 @@ void loop() {
 		public string Stdout { get; set; }
 		public string Stderr { get; set; }
 		public string Hex { get; set; }
-	}
-
-	public class ArduinoRunner
-	{
-		const int FLASH = 0x8000;
-
-		private readonly ushort[] Program = new ushort[FLASH];
-		public readonly AVR8Sharp.Cpu.Cpu Cpu;
-		public readonly AvrTimer Timer0;
-		public readonly AvrTimer Timer1;
-		public readonly AvrTimer Timer2;
-		public readonly AvrIoPort PortB;
-		public readonly AvrIoPort PortC;
-		public readonly AvrIoPort PortD;
-		public readonly AvrUsart Usart;
-		private readonly uint speed = 16_000_000U; // 16 MHz
-		readonly int _workUnitCycles = 500000;
-		readonly Stopwatch _watch;
-		readonly double _nanosPerCycle = 62.5;
-		
-		private double CurrentTime {
-			get {
-				return _watch.Elapsed.TotalSeconds;
-			}
-		}
-
-		// private readonly LimitedConcurrencyLevelTaskScheduler _scheduler = new LimitedConcurrencyLevelTaskScheduler (1);
-		
-		private bool _stopped = false;
-
-		public ArduinoRunner (ref byte[] program, int workUnitCycles = 500000, Stopwatch watch = null)
-		{
-			Cpu = new AVR8Sharp.Cpu.Cpu (program);
-			Timer0 = new AvrTimer (Cpu, AvrTimer.Timer0Config);
-			Timer1 = new AvrTimer (Cpu, AvrTimer.Timer1Config);
-			Timer2 = new AvrTimer (Cpu, AvrTimer.Timer2Config);
-			PortB = new AvrIoPort (Cpu, AvrIoPort.PortBConfig);
-			PortC = new AvrIoPort (Cpu, AvrIoPort.PortCConfig);
-			PortD = new AvrIoPort (Cpu, AvrIoPort.PortDConfig);
-			Usart = new AvrUsart (Cpu, AvrUsart.Usart0Config, speed);
-			_workUnitCycles = workUnitCycles;
-			_watch = watch;
-		}
-
-		public void Execute (Action<AVR8Sharp.Cpu.Cpu>? callback = null)
-		{
-			var cyclesToRun = Cpu.Cycles + _workUnitCycles;
-			while (Cpu.Cycles < cyclesToRun) {
-				AVR8Sharp.Cpu.Instruction.AvrInstruction (Cpu);
-				Cpu.Tick ();
-			}
-
-			callback?.Invoke (Cpu);
-		}
-		
-		public void Stop ()
-		{
-			_stopped = true;
-		}
 	}
 }

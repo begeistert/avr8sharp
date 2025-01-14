@@ -19,7 +19,7 @@ public class AvrAdc
 		{ 15, new AdcMuxInput (type: AdcMuxInputType.Constant, voltage: 0) },
 	};
 	public static AdcMuxInput FallbackMuxInput = new AdcMuxInput (type: AdcMuxInputType.Constant, voltage: 0);
-	public static AdcConfig AdcConfig = new AdcConfig (
+	public static AvrAdcConfig AdcConfig = new AvrAdcConfig (
 		admux: 0x7c,
 		adcsra: 0x7a,
 		adcsrb: 0x7b,
@@ -54,7 +54,7 @@ public class AvrAdc
 	Cpu.Cpu _cpu;
 	bool _converting = false;
 	int _conversionCycles = 25;
-	AdcConfig _config;
+	AvrAdcConfig _config;
 	AvrInterruptConfig _adc;
 	readonly double[] _channelValues;
 	double avcc = 5.0;
@@ -117,7 +117,7 @@ public class AvrAdc
 		}
 	}
 
-	public AvrAdc (Cpu.Cpu cpu, AdcConfig config)
+	public AvrAdc (Cpu.Cpu cpu, AvrAdcConfig config)
 	{
 		_cpu = cpu;
 		_config = config;
@@ -228,7 +228,7 @@ public class AdcMuxInput (AdcMuxInputType type, int channel = 0, double voltage 
 	public readonly int Gain = gain;
 }
 
-public class AdcConfig (byte admux, byte adcsra, byte adcsrb, byte adcl, byte adch, byte didr0, byte adcInterrupt, byte numChannels, byte muxInputMask, ADCMuxConfiguration muxChannels, AdcReference?[] adcReferences)
+public class AvrAdcConfig (byte admux, byte adcsra, byte adcsrb, byte adcl, byte adch, byte didr0, byte adcInterrupt, byte numChannels, byte muxInputMask, ADCMuxConfiguration muxChannels, AdcReference?[] adcReferences)
 {
 	public readonly byte ADMUX = admux;
 	public readonly byte ADCSRA = adcsra;

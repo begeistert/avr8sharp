@@ -35,7 +35,7 @@ public class AvrTwi
 	// Slave states
 	// TODO: Implement slave states
 	
-	public static TwiConfig TwiConfig = new TwiConfig {
+	public static AvrTwiConfig TwiConfig = new AvrTwiConfig {
 		TwiInterrupt = 0x30,
 		
 		TWBR = 0xb8,
@@ -47,7 +47,7 @@ public class AvrTwi
 	};
 	
 	private Cpu.Cpu _cpu;
-	private TwiConfig _config;
+	private AvrTwiConfig _config;
 	private uint _freqHz;
 	
 	private AvrInterruptConfig _twi;
@@ -82,7 +82,7 @@ public class AvrTwi
 		}
 	}
 
-	public AvrTwi (Cpu.Cpu cpu, TwiConfig config, uint freqHz)
+	public AvrTwi (Cpu.Cpu cpu, AvrTwiConfig config, uint freqHz)
 	{
 		_cpu = cpu;
 		_config = config;
@@ -205,7 +205,7 @@ public class NoopTwiEventHandler : ITwiEventHandler
 	}
 }
 
-public class TwiConfig
+public class AvrTwiConfig
 {
 	public byte TwiInterrupt;
 	

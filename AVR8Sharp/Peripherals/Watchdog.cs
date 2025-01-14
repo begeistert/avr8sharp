@@ -1,7 +1,7 @@
 using AVR8Sharp.Cpu;
 namespace AVR8Sharp.Peripherals;
 
-public class Watchdog
+public class AvrWatchdog
 {
 	// Register Bits
 	const int MCUSR_WDRF = 0x10; // Watchdog System Reset Flag
@@ -18,7 +18,7 @@ public class Watchdog
 	
 	const int WDTCSR_PROTECT_MASK = WDTCSR_WDE | WDTCSR_WDP3 | WDTCSR_WDP210;
 	
-	public static WatchdogConfig WatchdogConfig = new WatchdogConfig {
+	public static AvrWatchdogConfig WatchdogConfig = new AvrWatchdogConfig {
 		WatchdogInterrupt = 0x0c,
 		
 		MCUSR = 0x54,
@@ -28,7 +28,7 @@ public class Watchdog
 	readonly long _clockFrequency = 128_000;
 	
 	private Cpu.Cpu _cpu;
-	private WatchdogConfig _config;
+	private AvrWatchdogConfig _config;
 	private AvrClock _clock;
 	
 	private int _changeEnabledCycles = 0;
@@ -55,7 +55,7 @@ public class Watchdog
 		}
 	}
 	
-	public Watchdog (Cpu.Cpu cpu, WatchdogConfig config, AvrClock clock)
+	public AvrWatchdog (Cpu.Cpu cpu, AvrWatchdogConfig config, AvrClock clock)
 	{
 		_cpu = cpu;
 		_clock = clock;
@@ -132,7 +132,7 @@ public class Watchdog
 	}
 }
 
-public class WatchdogConfig
+public class AvrWatchdogConfig
 {
 	public byte WatchdogInterrupt;
 	

@@ -32,7 +32,7 @@ public class AvrUsart
 	const int UCSRC_UCPOL = 0x01; // Clock Polarity
 	
 	
-	public static UsartConfig Usart0Config = new UsartConfig {
+	public static AvrUsartConfig Usart0Config = new AvrUsartConfig {
 		RxCompleteInterrupt = 0x24,
 		DataRegisterEmptyInterrupt = 0x26,
 		TxCompleteInterrupt = 0x28,
@@ -52,7 +52,7 @@ public class AvrUsart
 	};
 	
 	private Cpu.Cpu _cpu;
-	private UsartConfig _config;
+	private AvrUsartConfig _config;
 	private uint _freqHz;
 	
 	private bool _rxBusyValue = false;
@@ -138,7 +138,7 @@ public class AvrUsart
 		}
 	}
 
-	public AvrUsart (Cpu.Cpu cpu, UsartConfig config, uint freqHz)
+	public AvrUsart (Cpu.Cpu cpu, AvrUsartConfig config, uint freqHz)
 	{
 		_cpu = cpu;
 		_config = config;
@@ -277,7 +277,7 @@ public class AvrUsart
 	}
 }
 
-public class UsartConfig
+public class AvrUsartConfig
 {
 	public byte RxCompleteInterrupt;
 	public byte DataRegisterEmptyInterrupt;

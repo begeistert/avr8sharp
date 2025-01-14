@@ -19,7 +19,7 @@ public class AvrSpi
 	
 	const byte BitsPerByte = 8;
 	
-	public static SpiConfig SpiConfig = new SpiConfig {
+	public static AvrSpiConfig SpiConfig = new AvrSpiConfig {
 		SpiInterrupt = 0x22,
 		
 		SPCR = 0x4c,
@@ -28,7 +28,7 @@ public class AvrSpi
 	};
 	
 	Cpu.Cpu _cpu;
-	SpiConfig _config;
+	AvrSpiConfig _config;
 	uint _freqHz;
 	
 	bool _transmissionActive = false;
@@ -82,7 +82,7 @@ public class AvrSpi
 		}
 	}
 
-	public AvrSpi (Cpu.Cpu cpu, SpiConfig config, uint freqHz)
+	public AvrSpi (Cpu.Cpu cpu, AvrSpiConfig config, uint freqHz)
 	{
 		_cpu = cpu;
 		_config = config;
@@ -142,7 +142,7 @@ public class AvrSpi
 	}
 }
 
-public class SpiConfig
+public class AvrSpiConfig
 {
 	public byte SpiInterrupt;
 	

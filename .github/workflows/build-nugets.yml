@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: msbuild /t:Restore /p:Configuration=Release AVR8Sharp.sln
     - name: Build
-      run: dotnet build -c Release AVR8Sharp/AVR8Sharp.cspro
+      run: dotnet build -c Release AVR8Sharp/AVR8Sharp.csproj
     - name: Test
       run: dotnet test -c Release Avr8SharpTests/Avr8SharpTests.csproj
     - name: Package Library

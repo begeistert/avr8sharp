@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -37,11 +37,12 @@ jobs:
     - name: Package
       uses: actions/upload-artifact@master
       with:
-        path: PackageOut
+        name: PackageOut
+        path: bin/Release/
   
   release:
     needs: build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Download Artifact
       uses: actions/download-artifact@master

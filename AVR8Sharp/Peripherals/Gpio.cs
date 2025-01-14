@@ -483,14 +483,14 @@ public class AvrPinChangeInterrupt (byte pcie, byte pcicr, byte pcifr, byte pcms
 	public readonly byte Offset = offset;
 }
 
-public class AvrPortConfig (ushort pin, ushort ddr, ushort port, AvrPinChangeInterrupt? pinChange = null, AvrExternalInterrupt?[] externalInterrupts = null)
+public class AvrPortConfig (ushort pin, ushort ddr, ushort port, AvrPinChangeInterrupt? pinChange = null, AvrExternalInterrupt?[]? externalInterrupts = null)
 {
 	public readonly ushort PIN = pin;
 	public readonly ushort DDR = ddr;
 	public readonly ushort PORT = port;
 	
 	public readonly AvrPinChangeInterrupt? PinChange = pinChange;
-	public readonly AvrExternalInterrupt?[] ExternalInterrupts = externalInterrupts;
+	public readonly AvrExternalInterrupt?[]? ExternalInterrupts = externalInterrupts;
 }
 
 public enum PinState

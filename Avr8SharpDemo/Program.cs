@@ -3,8 +3,9 @@ using System.Text;
 using AVR8Sharp;
 using AVR8Sharp.Peripherals;
 using Newtonsoft.Json;
+namespace Avr8SharpDemo;
 
-public class Program
+public static class Program
 {
 	const string HexiUrl = "https://hexi.wokwi.com";
 	const string BlinkCode = @"
@@ -24,11 +25,11 @@ void loop() {
   delay(500);
 }
 ";
-	public static HttpClient _Client;
+	public static readonly HttpClient Client;
 	
 	static Program ()
 	{
-		_Client = new HttpClient ();
+		Client = new HttpClient ();
 	}
 
 	public static void Main ()
@@ -61,6 +62,7 @@ void loop() {
 			var millis = runner.Cpu.Cycles / 16_000_000.0 * 1000;
 			Console.WriteLine ($"CPU Time: {millis} ms");
 			Console.WriteLine ($"Time: {watch.Elapsed.TotalMilliseconds} ms");
+			Console.WriteLine ();
 		});
 		// Add a listener when a byte is transmitted
 		var builder = new StringBuilder ();
@@ -73,6 +75,7 @@ void loop() {
 			var millis = (runner.Cpu.Cycles / 16_000_000.0) * 1000;
 			Console.WriteLine ($"CPU Time: {millis} ms");
 			Console.WriteLine ($"Time: {watch.Elapsed.TotalMilliseconds} ms");
+			Console.WriteLine ();
 		};
 		Console.WriteLine ("Running...");
 		const int fiveSecs = (int)(5.5 * 16_000_000);
@@ -96,7 +99,7 @@ void loop() {
 		var content = new StringContent (JsonConvert.SerializeObject (new {
 			sketch = source,
 		}), Encoding.UTF8, "application/json");
-		var response = _Client.PostAsync ($"{HexiUrl}/build", content).Result;
+		var response = Client.PostAsync ($"{HexiUrl}/build", content).Result;
 		var result = response.Content.ReadAsStringAsync ().Result;
 		return JsonConvert.DeserializeObject<HexiResult> (result) ?? new HexiResult ();
 	}

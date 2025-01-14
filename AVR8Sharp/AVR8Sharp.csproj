@@ -4,6 +4,23 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>Avr8Sharp</PackageId>
+        <Title>Arduino (8-bit AVR) Simulator</Title>
+        <Authors>Iván Montiel, Jorge Perez, Irvin Baez</Authors>
+        <Description>An AVR simulator written in C# ported from avrjs8</Description>
+        <Copyright>Copyright (c)  Iván Montiel, Jorge Perez, Irvin Baéz</Copyright>
+        <RepositoryUrl>https://github.com/begeistert/avr8sharp</RepositoryUrl>
+        <PackageTags>Arduino;AVR;Simulator</PackageTags>
+        <PackageIcon>icon.jpg</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\Assets\icon.jpg">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+        <Link>icon.jpg</Link>
+      </None>
+    </ItemGroup>
 
 </Project>

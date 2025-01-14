@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AVR8Sharp", "AVR8Sharp\AVR8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avr8SharpTests", "Avr8SharpTests\Avr8SharpTests.csproj", "{21C3F850-5473-49D3-BC02-DAF9D1519B77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avr8SharpPerf", "Avr8SharpPerf\Avr8SharpPerf.csproj", "{F0985467-3B9F-4920-888F-49E7A0C63EF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avr8SharpDemo", "Avr8SharpDemo\Avr8SharpDemo.csproj", "{F0985467-3B9F-4920-888F-49E7A0C63EF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

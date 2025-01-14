@@ -9,17 +9,10 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Update Versions
-      env:
-        VERSION_PREFIX: 1.0
-        VERSION_SUFFIX: ${{github.run_number}}
-      run: |
-        VERSION=$VERSION_PREFIX.$VERSION_SUFFIX
-        sed -i bak "s:<Version>1.0.0</Version>:<Version>$VERSION</Version>:g" AVR8Sharp/AVR8Sharp.csproj
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -37,24 +30,5 @@ jobs:
     - name: Package
       uses: actions/upload-artifact@master
       with:
-        name: PackageOut
-        path: bin/Release/
-  
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download Artifact
-      uses: actions/download-artifact@master
-      with:
-        name: PackageOut
-    - name: Publish Nuget
-      run: dotnet nuget push -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} AVR8Sharp.${{ needs.build.outputs.Version }}.nupkg
-    - name: Create Release
-      if: needs.build.outputs.CommitsSinceVersionSource > 0
-      uses: ncipollo/release-action@v1
-      with:
-        tag: ${{ needs.build.outputs.Version }}
-        name: Release ${{ needs.build.outputs.Version }}
-        artifacts: PackageOut/AVR8Sharp.${{ needs.build.outputs.Version }}.nupkg
-        token: ${{ secrets.RELEASE_TOKEN }}
+        path: PackageOut
+

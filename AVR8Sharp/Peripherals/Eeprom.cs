@@ -126,8 +126,10 @@ public class EepromMemoryBackend : IEepromBackend
 	public EepromMemoryBackend (uint size)
 	{
 		_memory = new byte[size];
-		// Fill with 0xFF using C# 8.0 feature
-		_memory.AsSpan().Fill(0xFF);
+		// Fill with 0xFF 
+		for (var i = 0; i < size; i++) {
+			_memory[i] = 0xFF;
+		}
 	}
 	
 	public byte ReadMemory (uint address)

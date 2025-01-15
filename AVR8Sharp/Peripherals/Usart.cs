@@ -206,7 +206,8 @@ public class AvrUsart
 		};
 		
 		_cpu.ReadHooks[_config.UDR] = _ => {
-			var mask = RxMasks.GetValueOrDefault (BitsPerChar, 0xff);
+			// var mask = RxMasks.GetValueOrDefault (BitsPerChar, 0xff);
+			var mask = RxMasks.TryGetValue (BitsPerChar, out var m) ? m : 0xff;
 			var result = _rxByte & mask;
 			_rxByte = 0;
 			_cpu.ClearInterrupt (_rxc);

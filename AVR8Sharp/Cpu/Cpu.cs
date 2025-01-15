@@ -128,8 +128,7 @@ public class Cpu
 		ProgBytes[address * 2] = (byte)(value & 0xff);
 		ProgBytes[address * 2 + 1] = (byte)(value >> 8);
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	
 	public byte ReadData (ushort address)
 	{
 		if (address > 32 && ReadHooks.TryGetValue (address, out var hook) && hook != null) {
@@ -138,7 +137,6 @@ public class Cpu
 		return Data[address];
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void WriteData (ushort address, byte value, byte mask = 0xff)
 	{
 		if (WriteHooks.TryGetValue (address, out var hook) && hook != null) {
@@ -148,8 +146,7 @@ public class Cpu
 		} 
 		Data[address] = value;
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	
 	public void SetInterruptFlag (AvrInterruptConfig interrupt)
 	{
 		if (interrupt.InverseFlag) {
@@ -162,8 +159,7 @@ public class Cpu
 			QueueInterrupt (interrupt);
 		}
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	
 	public void UpdateInterruptEnable (AvrInterruptConfig interrupt, byte registerValue)
 	{
 		if ((registerValue & interrupt.EnableMask) != 0) {
@@ -176,7 +172,6 @@ public class Cpu
 		}
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void QueueInterrupt (AvrInterruptConfig interrupt)
 	{
 		_pendingInterrupts[interrupt.Address] = interrupt;
@@ -188,7 +183,6 @@ public class Cpu
 		}
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void ClearInterrupt (AvrInterruptConfig interrupt, bool clearFlag = true)
 	{
 		if (clearFlag) {
@@ -207,7 +201,6 @@ public class Cpu
 		}
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public void ClearInterruptByFlag (AvrInterruptConfig interrupt, byte registerValue)
 	{
 		if ((registerValue & interrupt.FlagMask) == 0) return;
@@ -215,7 +208,6 @@ public class Cpu
 		ClearInterrupt (interrupt);
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public Action AddClockEvent (Action callback, int cycles)
 	{
 		cycles = Cycles + Math.Max (1, cycles);
@@ -237,8 +229,7 @@ public class Cpu
 		entry.Next = clockEvent;
 		return callback;
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	
 	public bool UpdateClockEvent (Action callback, int cycles)
 	{
 		if (ClearClockEvent (callback)) {
@@ -248,7 +239,6 @@ public class Cpu
 		return false;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public bool ClearClockEvent (Action callback)
 	{
 		var clockEvent = _nextClockEvent;
@@ -273,8 +263,7 @@ public class Cpu
 		}
 		return false;
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	
 	public void Tick ()
 	{
 		if (_nextClockEvent != null && _nextClockEvent.Cycles <= Cycles) {

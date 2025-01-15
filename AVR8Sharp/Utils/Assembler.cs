@@ -1,3 +1,4 @@
+#nullable enable
 using LabelTable = System.Collections.Generic.Dictionary<string, int>;
 using OpCodeHandler = System.Func<string, string, int, System.Collections.Generic.Dictionary<string, int>, object>;
 
@@ -5,6 +6,7 @@ namespace AVR8Sharp.Utils;
 
 public partial class AvrAssembler
 {
+	
 	// Create an alias for the dictionary type
 	static Dictionary<string, OpCodeHandler> OpTable = new Dictionary<string, OpCodeHandler>  {
 		{ "ADD", (a, b, _, _) => {
@@ -17,7 +19,7 @@ public partial class AvrAssembler
 		} },
 		{ "ADIW", (a, b, _, _) => {
 			var r = 0x9600;
-			var dm = RrIndexRegex().Match(a);
+			var dm = RrIndexRegex?.Match(a);
 			if (!dm.Success) {
 				throw new Exception("Rd must be 24, 26, 28, or 30");
 			}
@@ -449,7 +451,7 @@ public partial class AvrAssembler
 		}},
 		{ "SBIW", (a, b, _, _) => {
 			var r = 0x9700;
-			var dm = RrIndexRegex().Match(a);
+			var dm = RrIndexRegex.Match(a);
 			if (!dm.Success) {
 				throw new Exception("Rd must be 24, 26, 28, or 30");
 			}
@@ -556,6 +558,13 @@ public partial class AvrAssembler
 		}}
 	};
 	
+	static readonly System.Text.RegularExpressions.Regex RIndexRegex = new System.Text.RegularExpressions.Regex(@"[Rr](\d{1,2})");
+	static readonly System.Text.RegularExpressions.Regex RrIndexRegex = new System.Text.RegularExpressions.Regex(@"[Rr](24|26|28|30)");
+	static readonly System.Text.RegularExpressions.Regex YzQRegex = new System.Text.RegularExpressions.Regex(@"([YZ])\+(\d+)");
+	static readonly System.Text.RegularExpressions.Regex CommentsRegex = new System.Text.RegularExpressions.Regex("[#;].*$");
+	static readonly System.Text.RegularExpressions.Regex LabelRegex = new System.Text.RegularExpressions.Regex(@"^(\w+):");
+	static readonly System.Text.RegularExpressions.Regex CodeRegex = new System.Text.RegularExpressions.Regex(@"^\s*(\w+)(?:\s+([^,]+)(?:,\s*(\S+))?)?\s*$");
+	
 	private LabelTable _labels = new LabelTable();
 	private List<string> _errors = new List<string>();
 	private List<LineTablePassOne> _lines = new List<LineTablePassOne>();
@@ -595,22 +604,22 @@ public partial class AvrAssembler
 				BytesOffset = 0
 			};
 			// Replace the comments with the comments regex
-			res = CommentsRegex().Replace(res, string.Empty);
+			res = CommentsRegex.Replace(res, string.Empty);
 			if (string.IsNullOrEmpty (res)) {
 				continue;
 			}
 			// Check for a label
-			var match = LabelRegex().Match(res);
+			var match = LabelRegex.Match(res);
 			if (match.Success) {
 				_labels[match.Groups[1].Value] = byteOffset;
 				// Remove the label from the line
-				res = res[match.Length..].Trim();
+				res = res.Substring(match.Length).Trim();
 			}
 			if (string.IsNullOrEmpty(res)) {
 				continue;
 			}
 			// Check for a mnemonic line
-			match = CodeRegex().Match(res);
+			match = CodeRegex.Match(res);
 			try {
 				if (!match.Success) {
 					throw new Exception("Invalid instruction");
@@ -723,7 +732,7 @@ public partial class AvrAssembler
 				// Copy the bytes out of line table into the result table
 				switch (lt.Bytes) {
 					case string s:
-						resultTable[lt.BytesOffset + 1] = Convert.ToByte(s[..2], 16);
+						resultTable[lt.BytesOffset + 1] = Convert.ToByte(s.Substring(0, 2), 16);
 						resultTable[lt.BytesOffset] = Convert.ToByte(s.Substring(2, 2), 16);
 						break;
 					case KeyValuePair<string, string> p:
@@ -735,7 +744,7 @@ public partial class AvrAssembler
 							} else {
 								value = p.Value;
 							}
-							resultTable[bi + 1] = Convert.ToByte(value[..2], 16);
+							resultTable[bi + 1] = Convert.ToByte(value.Substring(0, 2), 16);
 							resultTable[bi] = Convert.ToByte(value.Substring(2, 2), 16);
 						}
 						break;
@@ -780,7 +789,7 @@ public partial class AvrAssembler
 	/// </summary>
 	private static int DestRIndex (string r, int min = 0, int max = 31)
 	{
-		var match = RIndexRegex().Match(r);
+		var match = RIndexRegex.Match(r);
 		if (!match.Success) {
 			throw new Exception($"Not a register: {r}");
 		}
@@ -799,7 +808,7 @@ public partial class AvrAssembler
 	/// </summary>
 	private static int SrcRIndex (string r, int min = 0, int max = 31)
 	{
-		var match = RIndexRegex().Match(r);
+		var match = RIndexRegex.Match(r);
 		if (!match.Success) {
 			throw new Exception($"Not a register: {r}");
 		}
@@ -819,10 +828,10 @@ public partial class AvrAssembler
 	{
 		int d;
 		if (value.Length > 1 && value[0] == '0' && value[1] == 'x') {
-			d = int.Parse(value[2..], System.Globalization.NumberStyles.HexNumber);
+			d = int.Parse (value.Substring (2), System.Globalization.NumberStyles.HexNumber);
 		}
 		else if (value.Length > 1 && value[0] == '0' && value[1] == 'b') {
-			d = Convert.ToInt32(value[2..], 2);
+			d = Convert.ToInt32(value.Substring(2), 2);
 		}
 		else
 			d = int.Parse(value);
@@ -877,10 +886,10 @@ public partial class AvrAssembler
 				return labels[c] - offset;
 			}
 			if (c.Length > 1 && c[0] == '0' && c[1] == 'x') {
-				return int.Parse(c[2..], System.Globalization.NumberStyles.HexNumber);
+				return int.Parse (c.Substring (2), System.Globalization.NumberStyles.HexNumber);
 			}
 			if (c.Length > 1 && c[0] == '0' && c[1] == 'b') {
-				return Convert.ToInt32(c[2..], 2);
+				return Convert.ToInt32(c.Substring(2), 2);
 			}
 			if (int.TryParse(c, out var d)) {
 				return d;
@@ -941,7 +950,7 @@ public partial class AvrAssembler
 	/// </summary>
 	private static int StldYzQ (string yzq)
 	{
-		var d = YzQRegex().Match(yzq);
+		var d = YzQRegex.Match(yzq);
 		var r = 0x8000;
 		if (!d.Success) {
 			throw new Exception("Invalid arguments");
@@ -967,24 +976,6 @@ public partial class AvrAssembler
 	{
 		return ZeroPad (0x9408 | (ConstValue(a, 0, 7) << 4));
 	}
-
-    [System.Text.RegularExpressions.GeneratedRegex(@"[Rr](\d{1,2})")]
-    private static partial System.Text.RegularExpressions.Regex RIndexRegex();
-    
-    [System.Text.RegularExpressions.GeneratedRegex(@"[Rr](24|26|28|30)")]
-    private static partial System.Text.RegularExpressions.Regex RrIndexRegex();
-    
-    [System.Text.RegularExpressions.GeneratedRegex(@"([YZ])\+(\d+)")]
-    private static partial System.Text.RegularExpressions.Regex YzQRegex();
-    
-    [System.Text.RegularExpressions.GeneratedRegex("[#;].*$")]
-    private static partial System.Text.RegularExpressions.Regex CommentsRegex();
-    
-    [System.Text.RegularExpressions.GeneratedRegex(@"^(\w+):")]
-    private static partial System.Text.RegularExpressions.Regex LabelRegex();
-    
-    [System.Text.RegularExpressions.GeneratedRegex(@"^\s*(\w+)(?:\s+([^,]+)(?:,\s*(\S+))?)?\s*$")]
-    private static partial System.Text.RegularExpressions.Regex CodeRegex();
 }
 
 public class LineTablePassOne

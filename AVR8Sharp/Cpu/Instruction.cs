@@ -3,7 +3,6 @@ namespace AVR8Sharp.Cpu;
 
 public static class Instruction
 {
-	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 	public static void AvrInstruction (Cpu cpu)
 	{
 		var opcode = cpu.ProgramMemory[(int)cpu.PC];

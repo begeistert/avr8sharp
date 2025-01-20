@@ -4,7 +4,7 @@ namespace AVR8Sharp.Peripherals;
 public class AvrWatchdog
 {
 	// Register Bits
-	const int MCUSR_WDRF = 0x10; // Watchdog System Reset Flag
+	const int MCUSR_WDRF = 0x8; // Watchdog System Reset Flag
 	
 	const int WDTCSR_WDIF = 0x80; // Watchdog Interrupt Flag
 	const int WDTCSR_WDIE = 0x40; // Watchdog Interrupt Enable
@@ -59,6 +59,7 @@ public class AvrWatchdog
 	{
 		_cpu = cpu;
 		_clock = clock;
+		_config = config;
 		
 		_watchdog = new AvrInterruptConfig (
 			address: config.WatchdogInterrupt,

@@ -39,10 +39,10 @@ public class AvrTwi
 		TwiInterrupt = 0x30,
 		
 		TWBR = 0xb8,
-		TWCR = 0xb9,
-		TWSR = 0xba,
+		TWSR = 0xb9,
+		TWAR = 0xba,
 		TWDR = 0xbb,
-		TWAR = 0xbc,
+		TWCR = 0xbc,
 		TWAMR = 0xbd
 	};
 	
@@ -116,7 +116,7 @@ public class AvrTwi
 						EventHandler.Stop ();
 					} else if (Status == STATUS_START || Status == STATUS_REPEATED_START) {
 						_busy = true;
-						EventHandler.ConnectToSlave ((byte)(twdrValue >> 1), (twdrValue & 0x1) != 0);
+						EventHandler.ConnectToSlave ((byte)(twdrValue >> 1), (twdrValue & 0x1) == 0);
 					} else if (Status == STATUS_SLAW_ACK || Status == STATUS_DATA_SENT_ACK) {
 						_busy = true;
 						EventHandler.WriteByte (twdrValue);

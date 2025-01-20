@@ -24,8 +24,8 @@ public class AvrAdc
 		adcsra: 0x7a,
 		adcsrb: 0x7b,
 		adcl: 0x78,
-		adch: 0x70,
-		didr0: 0x73,
+		adch: 0x79,
+		didr0: 0x7e,
 		adcInterrupt: 0x2a,
 		numChannels: 8,
 		muxInputMask: 0xf,
@@ -56,7 +56,6 @@ public class AvrAdc
 	int _conversionCycles = 25;
 	AvrAdcConfig _config;
 	AvrInterruptConfig _adc;
-	readonly double[] _channelValues;
 	double avcc = 5.0;
 	double aref = 5.0;
 	
@@ -86,12 +85,6 @@ public class AvrAdc
 	}
 	public AdcReference ReferenceVoltageType {
 		get {
-			// const { ADMUX, adcReferences } = this.config;
-			// let refs = (this.cpu.data[ADMUX] >> REFS_SHIFT) & REFS_MASK;
-			// if (adcReferences.length > 4 && this.cpu.data[ADMUX] & REFS2) {
-			//   refs |= 0x4;
-			// }
-			// return adcReferences[refs] ?? ADCReference.Reserved;
 			var admux = _cpu.Data[_config.ADMUX];
 			var refs = (admux >> REFS_SHIFT) & REFS_MASK;
 			if (_config.AdcReferences.Length > 4 && (admux & REFS2) != 0) {
@@ -116,6 +109,7 @@ public class AvrAdc
 			}
 		}
 	}
+	public double[] ChannelValues { get; }
 
 	public AvrAdc (Cpu.Cpu cpu, AvrAdcConfig config)
 	{
@@ -128,7 +122,7 @@ public class AvrAdc
 			enableRegister: _config.ADCSRA,
 			enableMask: ADIE
 		);
-		_channelValues = new double[config.NumChannels];
+		ChannelValues = new double[config.NumChannels];
 		_cpu.WriteHooks[config.ADCSRA] = (value, oldValue, _, _) => {
 			if ((value & ADEN) != 0 && (oldValue & ADEN) == 0) {
 				_conversionCycles = 25;
@@ -165,12 +159,12 @@ public class AvrAdc
 				voltage = input.Voltage;
 				break;
 			case AdcMuxInputType.SingleEnded:
-				voltage = _channelValues[input.Channel];
+				voltage = ChannelValues[input.Channel];
 				break;
 			case AdcMuxInputType.Differential:
 				voltage = input.Gain *
-					(_channelValues[input.PositiveChannel] -
-					 _channelValues[input.NegativeChannel]);
+					(ChannelValues[input.PositiveChannel] -
+					 ChannelValues[input.NegativeChannel]);
 				break;
 			case AdcMuxInputType.Temperature:
 				voltage = 0.378125; // 25 celcius

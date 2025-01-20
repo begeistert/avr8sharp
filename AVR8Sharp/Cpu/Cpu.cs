@@ -266,11 +266,12 @@ public class Cpu
 	
 	public void Tick ()
 	{
-		if (_nextClockEvent != null && _nextClockEvent.Cycles <= Cycles) {
-			_nextClockEvent.Callback ();
-			_nextClockEvent = _nextClockEvent.Next;
+		var nextClockEvent = _nextClockEvent;
+		if (nextClockEvent != null && nextClockEvent.Cycles <= Cycles) {
+			nextClockEvent.Callback ();
+			_nextClockEvent = nextClockEvent.Next;
 			if (_clockEventPool.Count < 10) {
-				_clockEventPool.Push (_nextClockEvent);
+				_clockEventPool.Push (nextClockEvent);
 			}
 		}
 
@@ -306,6 +307,11 @@ public class AvrClockEventEntry
 	public int Cycles;
 	public Action Callback = () => { };
 	public AvrClockEventEntry? Next;
+	
+	public AvrClockEventEntry Clone ()
+	{
+		return new AvrClockEventEntry { Cycles = Cycles, Callback = Callback, Next = Next };
+	}
 }
 
 public class DataView (ref byte[] data)

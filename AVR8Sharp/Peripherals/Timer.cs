@@ -158,6 +158,7 @@ public class AvrTimer
 		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: 0),
 		new WgmConfig (mode:TimerMode.CTC, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
 		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
+		new WgmConfig (mode:TimerMode.Reserved, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Immediate, tovUpdateMode: TOVUpdateMode.Max, flags: 0),
 		new WgmConfig (mode:TimerMode.PWMPhaseCorrect, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Top, tovUpdateMode: TOVUpdateMode.Bottom, flags: OCToggle),
 		new WgmConfig (mode:TimerMode.Reserved, timerTopValue: 0xff, ocrUpdateMode: OCRUpdateMode.Immediate,tovUpdateMode: TOVUpdateMode.Max, flags: 0),
 		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: OCToggle),
@@ -181,7 +182,7 @@ public class AvrTimer
 		new WgmConfig (mode:TimerMode.FastPWM, timerTopValue: TopOCRA, ocrUpdateMode: OCRUpdateMode.Bottom, tovUpdateMode: TOVUpdateMode.Top, flags: OCToggle),
 	];
 	
-	private static Action? CountParameterLess;
+	private Action? CountParameterLess;
 	
 	private Cpu.Cpu _cpu;
 	private AvrTimerConfig _config;
@@ -338,7 +339,7 @@ public class AvrTimer
 			if (_divider != 0) {
 				TimerUpdated (_tcntNext, _tcntNext);
 			}
-			return true;
+			return false;
 		};
 		
 		_cpu.WriteHooks[config.OCRA] = (value, _, _, _) => {
@@ -346,7 +347,7 @@ public class AvrTimer
 			if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
 				_ocrA = _nextOcrA;
 			}
-			return true;
+			return false;
 		};
 		
 		_cpu.WriteHooks[config.OCRB] = (value, _, _, _) => {
@@ -354,7 +355,7 @@ public class AvrTimer
 			if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
 				_ocrB = _nextOcrB;
 			}
-			return true;
+			return false;
 		};
 		
 		if (_hasOcrC) {
@@ -363,7 +364,7 @@ public class AvrTimer
 				if (_ocrUpdateMode == OCRUpdateMode.Immediate) {
 					_ocrC = _nextOcrC;
 				}
-				return true;
+				return false;
 			};
 		}
 
@@ -457,6 +458,9 @@ public class AvrTimer
 	{
 		var wgmModes = _config.Bits == 16 ? WgmModes16Bits : WgmModes8Bit;
 		var tccra = _cpu.Data[_config.TCCRA];
+		if (wgmModes.Length <= WGM) {
+			return;
+		}
 		var wgmConfig = wgmModes[WGM];
 		_timerMode = wgmConfig.Mode;
 		_topValue = wgmConfig.TimerTopValue;
@@ -554,12 +558,12 @@ public class AvrTimer
 		}
 
 		if (_updateDivider) {
-			var newDivider = _config.Dividers[CS];
+			var newDivider = _config.Dividers?[CS] ?? 0;
 			_lastCycle = newDivider != 0 ? _cpu.Cycles : 0;
 			_updateDivider = false;
 			_divider = newDivider;
 			if (_config.ExternalClockPort != 0 && _externalClockPort == null) {
-				_externalClockPort = _cpu.GpioByPort[_config.ExternalClockPort];
+				_externalClockPort = _cpu.GpioByPort.TryGetValue (_config.ExternalClockPort, out var port) ? port : null;
 			}
 			if (_externalClockPort != null) {
 				_externalClockPort.ExternalClockListeners[_config.ExternalClockPin] = null;
@@ -570,6 +574,7 @@ public class AvrTimer
 				_externalClockPort.ExternalClockListeners[_config.ExternalClockPin] = ExternalClockCallback;
 				_externalClockRisingEdge = CS == (int)ExternalClockMode.RisingEdge;
 			}
+			return;
 		}
 		
 		if (reschedule && _divider != 0) {
@@ -687,7 +692,7 @@ public class AvrTimer
 	{
 		var newValue = PinOverrideMode.None;
 		var invertingMode = compValue == 3;
-		var isSet = _countingUp && invertingMode;
+		var isSet = _countingUp == invertingMode;
 		switch (_timerMode) {
 			case TimerMode.Normal:
 			case TimerMode.CTC:
@@ -697,7 +702,7 @@ public class AvrTimer
 				if (compValue == 1) 
 					newValue = bottom ? PinOverrideMode.None : PinOverrideMode.Toggle;
 				else 
-					newValue = isSet ? PinOverrideMode.Set : PinOverrideMode.Clear;
+					newValue = invertingMode ^ bottom ? PinOverrideMode.Set : PinOverrideMode.Clear;
 				break;
 			case TimerMode.PWMPhaseCorrect:
 			case TimerMode.PWMPhaseFrequencyCorrect:
@@ -725,20 +730,20 @@ public class AvrTimer
 	
 	private void UpdateCompA (PinOverrideMode mode)
 	{
-		var port = _cpu.GpioByPort[_config.ComparatorPortA];
-		port.TimerOverridePin (_config.ComparatorPinA, mode);
+		_cpu.GpioByPort.TryGetValue (_config.ComparatorPortA, out var port);
+		port?.TimerOverridePin (_config.ComparatorPinA, mode);
 	}
 	
 	private void UpdateCompB (PinOverrideMode mode)
 	{
-		var port = _cpu.GpioByPort[_config.ComparatorPortB];
-		port.TimerOverridePin (_config.ComparatorPinB, mode);
+		_cpu.GpioByPort.TryGetValue (_config.ComparatorPortB, out var port);
+		port?.TimerOverridePin (_config.ComparatorPinB, mode);
 	}
 	
 	private void UpdateCompC (PinOverrideMode mode)
 	{
-		var port = _cpu.GpioByPort[_config.ComparatorPortC];
-		port.TimerOverridePin (_config.ComparatorPinC, mode);
+		_cpu.GpioByPort.TryGetValue (_config.ComparatorPortC, out var port);
+		port?.TimerOverridePin (_config.ComparatorPinC, mode);
 	}
 
 	private PinOverrideMode CompToOverride (byte comp)
@@ -873,6 +878,78 @@ public class AvrTimerConfig
 		ComparatorPinC = comparatorPinC;
 		ExternalClockPort = externalClockPort;
 		ExternalClockPin = externalClockPin;
+	}
+	
+	public AvrTimerConfig CreateNew (byte bits = 0, 
+		int[]? dividers = null, 
+		byte captureInterrupt = 0, 
+		byte comparatorAInterrupt = 0, 
+		byte comparatorBInterrupt = 0, 
+		byte comparatorCInterrupt = 0, 
+		byte overflowInterrupt = 0, 
+		byte tifr = 0, 
+		byte ocra = 0, 
+		byte ocrb = 0, 
+		byte ocrc = 0, 
+		byte icr = 0, 
+		byte tcnt = 0, 
+		byte tccra = 0, 
+		byte tccrb = 0, 
+		byte tccrc = 0, 
+		byte timsk = 0, 
+		byte tov = 0, 
+		byte ocfa = 0, 
+		byte ocfb = 0, 
+		byte ocfc = 0, 
+		byte toie = 0, 
+		byte ociea = 0, 
+		byte ocieb = 0, 
+		byte ociec = 0, 
+		ushort comparatorPortA = 0, 
+		byte comparatorPinA = 0, 
+		ushort comparatorPortB = 0, 
+		byte comparatorPinB = 0, 
+		ushort comparatorPortC = 0, 
+		byte comparatorPinC = 0, 
+		ushort externalClockPort = 0, 
+		byte externalClockPin = 0)
+	{
+		// The create new function should be used to create a new instance of the AvrTimerConfig class reusing the same values and replacing only the ones that are different
+		return new AvrTimerConfig (
+			bits: bits == 0 ? Bits : bits,
+			dividers: dividers ?? Dividers,
+			captureInterrupt: captureInterrupt == 0 ? CaptureInterrupt : captureInterrupt,
+			comparatorAInterrupt: comparatorAInterrupt == 0 ? ComparatorAInterrupt : comparatorAInterrupt,
+			comparatorBInterrupt: comparatorBInterrupt == 0 ? ComparatorBInterrupt : comparatorBInterrupt,
+			comparatorCInterrupt: comparatorCInterrupt == 0 ? ComparatorCInterrupt : comparatorCInterrupt,
+			overflowInterrupt: overflowInterrupt == 0 ? OverflowInterrupt : overflowInterrupt,
+			tifr: tifr == 0 ? TIFR : tifr,
+			ocra: ocra == 0 ? OCRA : ocra,
+			ocrb: ocrb == 0 ? OCRB : ocrb,
+			ocrc: ocrc == 0 ? OCRC : ocrc,
+			icr: icr == 0 ? ICR : icr,
+			tcnt: tcnt == 0 ? TCNT : tcnt,
+			tccra: tccra == 0 ? TCCRA : tccra,
+			tccrb: tccrb == 0 ? TCCRB : tccrb,
+			tccrc: tccrc == 0 ? TCCRC : tccrc,
+			timsk: timsk == 0 ? TIMSK : timsk,
+			tov: tov == 0 ? TOV : tov,
+			ocfa: ocfa == 0 ? OCFA : ocfa,
+			ocfb: ocfb == 0 ? OCFB : ocfb,
+			ocfc: ocfc == 0 ? OCFC : ocfc,
+			toie: toie == 0 ? TOIE : toie,
+			ociea: ociea == 0 ? OCIEA : ociea,
+			ocieb: ocieb == 0 ? OCIEB : ocieb,
+			ociec: ociec == 0 ? OCIEC : ociec,
+			comparatorPortA: comparatorPortA == 0 ? ComparatorPortA : comparatorPortA,
+			comparatorPinA: comparatorPinA == 0 ? ComparatorPinA : comparatorPinA,
+			comparatorPortB: comparatorPortB == 0 ? ComparatorPortB : comparatorPortB,
+			comparatorPinB: comparatorPinB == 0 ? ComparatorPinB : comparatorPinB,
+			comparatorPortC: comparatorPortC == 0 ? ComparatorPortC : comparatorPortC,
+			comparatorPinC: comparatorPinC == 0 ? ComparatorPinC : comparatorPinC,
+			externalClockPort: externalClockPort == 0 ? ExternalClockPort : externalClockPort,
+			externalClockPin: externalClockPin == 0 ? ExternalClockPin : externalClockPin
+		);
 	}
 }
 

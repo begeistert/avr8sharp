@@ -13,9 +13,9 @@
         <PackageTags>Arduino;AVR;Simulator</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Version>1.0.1</Version>
+        <Version>1.0.1.5</Version>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

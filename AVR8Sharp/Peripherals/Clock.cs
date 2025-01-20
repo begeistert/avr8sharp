@@ -14,14 +14,14 @@ public class AvrClock
 	];
 
 	int _clockEnabledCycles = 0;
-	int _prescalerValue = 0;
+	int _prescalerValue = 1;
 	int _cyclesDelta = 0;
 	uint _baseFreqHz = 0;
 	Cpu.Cpu _cpu;
 	
 	public uint Frequency {
 		get {
-			return (uint)(_baseFreqHz / _prescalerValue);
+			return (uint)(_baseFreqHz / (_prescalerValue != 0 ? _prescalerValue : 1));
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class AvrClock
 				_prescalerValue = Prescalers[index];
 				cpu.Data[clockConfig.CLKPR] = (byte)index;
 				if (oldPrescaler != _prescalerValue) {
-					_cyclesDelta = (cpu.Cycles + _cyclesDelta) * (oldPrescaler / _prescalerValue) - cpu.Cycles;
+					_cyclesDelta = (int)((cpu.Cycles + _cyclesDelta) * (oldPrescaler / (double)_prescalerValue) - cpu.Cycles);
 				}
 			}
 			return true;

@@ -134,7 +134,7 @@ public class AvrSpi
 		};
 	}
 
-	private void CompleteTransfer (int receivedByte)
+	public void CompleteTransfer (int receivedByte)
 	{
 		_cpu.Data[_config.SPDR] = (byte)receivedByte;
 		_cpu.SetInterruptFlag (_spi);

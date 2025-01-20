@@ -158,8 +158,7 @@ public class AvrUsart
 			flagRegister: _config.UCSRA,
 			flagMask: UCSRA_UDRE,
 			enableRegister: _config.UCSRB,
-			enableMask: UCSRB_UDRIE,
-			constant: true
+			enableMask: UCSRB_UDRIE
 		);
 		
 		_txc = new AvrInterruptConfig (
@@ -167,8 +166,7 @@ public class AvrUsart
 			flagRegister: _config.UCSRA,
 			flagMask: UCSRA_TXC,
 			enableRegister: _config.UCSRB,
-			enableMask: UCSRB_TXCIE,
-			constant: true
+			enableMask: UCSRB_TXCIE
 		);
 		
 		Reset ();

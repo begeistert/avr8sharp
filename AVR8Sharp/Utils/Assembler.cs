@@ -639,11 +639,11 @@ public partial class AvrAssembler
 					case "_REPLACE":
 						// Replace the instruction with the replacement
 						if (match.Groups[2].Success) {
-							replacements[match.Groups[2].Value] = match.Groups[3].Value;
+							replacements[match.Groups[2].Value.Trim ()] = match.Groups[3].Value.Trim ();
 						}
 						continue;
 					case "_LOC":
-						var num = int.TryParse (match.Groups[2].Value, out var n) ? n : int.MinValue;
+						var num = int.TryParse (match.Groups[2].Value.Trim (), out var n) ? n : int.MinValue;
 						if (num == int.MinValue) {
 							throw new Exception("Invalid location");
 						}
@@ -653,7 +653,7 @@ public partial class AvrAssembler
 						byteOffset = num;
 						continue;
 					case "_IW":
-						var num2 = int.TryParse (match.Groups[2].Value, out var n2) ? n2 : int.MinValue;
+						var num2 = int.TryParse (match.Groups[2].Value.Trim (), out var n2) ? n2 : int.MinValue;
 						if (num2 == int.MinValue) {
 							throw new Exception("Invalid word");
 						}
@@ -670,8 +670,8 @@ public partial class AvrAssembler
 				}
 				
 				// Do replacements on parameters
-				var resMatch2 = match.Groups[2].Value;
-				var resMatch3 = match.Groups[3].Value;
+				var resMatch2 = match.Groups[2].Value.Trim ();
+				var resMatch3 = match.Groups[3].Value.Trim ();
 				if (replacements.TryGetValue (resMatch2, out var value)) {
 					resMatch2 = value;
 				}
@@ -683,9 +683,10 @@ public partial class AvrAssembler
 				lt.BytesOffset = byteOffset;
 				switch (bytes) {
 					case string:
-					case Func<LabelTable, object>:
+					case Func<LabelTable, string>:
 						byteOffset += 2;
 						break;
+					case Func<LabelTable, object>:
 					case KeyValuePair<string, string> p:
 						byteOffset += 4;
 						break;

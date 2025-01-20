@@ -9,7 +9,7 @@ public class AvrEeprom
 	public const byte EERIE = 1 << 3;
 	public const byte EEPM0 = 1 << 4;
 	public const byte EEPM1 = 1 << 5;
-	public const byte EECR_WRITE_MASK = EERE | EEMPE | EERIE | EEPM0 | EEPM1;
+	public const byte EECR_WRITE_MASK = EEPE | EEMPE | EERIE | EEPM0 | EEPM1;
 	
 	public static AvrEepromConfig EepromConfig = new AvrEepromConfig (
 		eepromReadyInterrupt: 0x2c,

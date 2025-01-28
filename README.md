@@ -16,7 +16,7 @@ This library, like the original version, requires the following components to be
 any external hardware interfacing with the microcontroller.
 - **(Optional) Visual or audio representation**: If desired, a visual or audio 
 representation of the simulated hardware can be added for enhanced interaction.
-- 
+
 ```mermaid
 graph LR
     A[Precompiled Firmware] --> B[AVR8Sharp]

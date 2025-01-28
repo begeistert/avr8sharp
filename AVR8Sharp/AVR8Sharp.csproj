@@ -17,7 +17,7 @@
         <LangVersion>default</LangVersion>
         <Company>Iván Montiel</Company>
         <PackageProjectUrl>https://github.com/begeistert/avr8sharp</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/begeistert/avr8sharp/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageLicenseUrl></PackageLicenseUrl>
     </PropertyGroup>
 
     <ItemGroup>

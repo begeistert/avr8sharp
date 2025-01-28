@@ -1,5 +1,9 @@
 ## AVR8Sharp
 
+![Build Status](https://github.com/begeistert/AVR8Sharp/actions/workflows/build-nugets.yml/badge.svg)
+[![NuGet](https://img.shields.io/nuget/v/AVR8Sharp.svg)](https://www.nuget.org/packages/AVR8Sharp)
+[![License](https://img.shields.io/github/license/begeistert/AVR8Sharp)](https://github.com/begeistert/avr8sharp/blob/master/LICENSE)
+
 **AVR8Sharp** is a .NET Standard library designed to emulate the AVR-8 architecture. 
 It is a port of the [avr8js](https://github.com/wokwi/avr8js) library, originally 
 developed in TypeScript.

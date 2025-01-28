@@ -2,9 +2,9 @@ name: Build Nugets
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -27,8 +27,4 @@ jobs:
       run: |
         mkdir PackageOut
         cd AVR8Sharp && dotnet pack --include-symbols --no-build -c Release -v normal -o ../PackageOut
-    - name: Package
-      uses: actions/upload-artifact@master
-      with:
-        path: PackageOut
 

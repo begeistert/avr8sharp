@@ -25,12 +25,7 @@ void loop() {
   delay(500);
 }
 ";
-	public static readonly HttpClient Client;
-	
-	static Program ()
-	{
-		Client = new HttpClient ();
-	}
+	public static readonly HttpClient Client = new HttpClient ();
 
 	public static void Main ()
 	{

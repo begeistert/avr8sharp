@@ -5,17 +5,19 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>Avr8Sharp</PackageId>
-        <Title>Arduino (8-bit AVR) Simulator</Title>
-        <Authors>Iván Montiel, Jorge Perez, Irvin Baez</Authors>
-        <Description>An AVR simulator written in C# ported from avrjs8</Description>
-        <Copyright>Copyright (c)  Iván Montiel, Jorge Perez, Irvin Baéz</Copyright>
+        <Title>AVR-8 Simulator</Title>
+        <Authors>Iván Montie</Authors>
+        <Description>An AVR-8 simulator implemented in C#, ported from the avr8js library.</Description>
+        <Copyright>Copyright (c)  Iván Montiel</Copyright>
         <RepositoryUrl>https://github.com/begeistert/avr8sharp</RepositoryUrl>
         <PackageTags>Arduino;AVR;Simulator</PackageTags>
-        <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Version>1.0.1.5</Version>
+        <Version>1.0.2</Version>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <LangVersion>default</LangVersion>
+        <Company>Iván Montiel</Company>
+        <PackageProjectUrl>https://github.com/begeistert/avr8sharp</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/begeistert/avr8sharp/blob/master/LICENSE</PackageLicenseUrl>
     </PropertyGroup>
 
     <ItemGroup>

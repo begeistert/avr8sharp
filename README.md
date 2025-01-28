@@ -41,9 +41,9 @@ Install-Package AVR8Sharp
 
 ### Usage
 
-The library is designed to be easy to use with the Builder pattern. Here is an example
-of how to create a new runner of the Arduino Uno (ATmega328p) board and load a firmware
-from a HEX file.
+The library is designed with ease of use in mind, leveraging the **Builder pattern** 
+for intuitive configuration. Below is an example demonstrating how to create a new 
+runner for the Arduino Uno (ATmega328p) board and load firmware from a HEX file.
 
 ```csharp
 using AVR8Sharp;
@@ -89,8 +89,9 @@ class Program
 }
 ```
 
-The above code snippet demonstrates how to create an AVR runner for the Arduino Uno,
-and it is designed to run the following Arduino sketch:
+The code snippet above illustrates how to create an AVR runner for the Arduino 
+Uno. This runner is specifically designed to execute the following Arduino 
+sketch:
 
 ```cpp
 // Green LED connected to LED_BUILTIN,
